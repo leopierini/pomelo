@@ -1,0 +1,10 @@
+{
+  "format": ["swift"],
+  "path": ["Sources", "App/Sources", "App/QuickAction"],
+  "minTokens": 50,
+  "minLines": 5,
+  "ignore": ["**/Tests/**", "**/*Tests.swift"],
+  "gitignore": true,
+  "reporters": ["json"],
+  "silent": true
+}

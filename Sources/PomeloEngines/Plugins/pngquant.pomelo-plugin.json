@@ -1,0 +1,44 @@
+{
+  "id": "pngquant",
+  "displayName": "pngquant",
+  "executable": {
+    "names": [
+      "pngquant"
+    ],
+    "searchPaths": [
+      "/opt/homebrew/bin",
+      "/usr/local/bin"
+    ],
+    "versionArguments": [
+      "--version"
+    ]
+  },
+  "install": {
+    "homebrew": "pngquant",
+    "website": "https://pngquant.org"
+  },
+  "edges": [
+    {
+      "from": [
+        "png"
+      ],
+      "to": [
+        "png"
+      ],
+      "operation": "compress",
+      "flags": [
+        "lossy"
+      ],
+      "arguments": [
+        "--quality=0-{quality:70}",
+        "--speed",
+        "3",
+        "--force",
+        "--output",
+        "{output}",
+        "--",
+        "{input}"
+      ]
+    }
+  ]
+}

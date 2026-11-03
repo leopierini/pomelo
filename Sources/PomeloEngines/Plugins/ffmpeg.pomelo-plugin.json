@@ -1,0 +1,1734 @@
+{
+  "id": "ffmpeg",
+  "displayName": "FFmpeg",
+  "executable": {
+    "names": [
+      "ffmpeg"
+    ],
+    "searchPaths": [
+      "/opt/homebrew/bin",
+      "/usr/local/bin"
+    ],
+    "versionArguments": [
+      "-version"
+    ]
+  },
+  "install": {
+    "homebrew": "ffmpeg",
+    "website": "https://ffmpeg.org/download.html"
+  },
+  "maxConcurrentJobs": 2,
+  "edges": [
+    {
+      "from": [
+        "mov",
+        "m4v",
+        "mkv",
+        "webm",
+        "avi",
+        "wmv"
+      ],
+      "to": [
+        "mp4"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-c:v",
+        "libx264",
+        "-crf",
+        "23",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mov",
+        "mp4",
+        "m4v",
+        "mkv",
+        "avi",
+        "wmv"
+      ],
+      "to": [
+        "webm"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-c:v",
+        "libvpx-vp9",
+        "-b:v",
+        "0",
+        "-crf",
+        "32",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mov",
+        "mp4",
+        "m4v",
+        "webm",
+        "avi",
+        "wmv"
+      ],
+      "to": [
+        "mkv"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-c:v",
+        "libx264",
+        "-crf",
+        "23",
+        "-pix_fmt",
+        "yuv420p",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mov",
+        "mp4",
+        "m4v",
+        "mkv",
+        "webm",
+        "avi",
+        "wmv"
+      ],
+      "to": [
+        "gif"
+      ],
+      "flags": [
+        "lossy",
+        "directOnly"
+      ],
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-vf",
+        "fps=12,scale=480:-1",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mov",
+        "mp4",
+        "m4v",
+        "mkv",
+        "webm",
+        "avi",
+        "wmv",
+        "m4a",
+        "wav",
+        "flac",
+        "ogg",
+        "opus",
+        "aiff",
+        "wma"
+      ],
+      "to": [
+        "mp3"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-vn",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mov",
+        "mp4",
+        "m4v",
+        "mkv",
+        "webm",
+        "avi",
+        "wmv",
+        "mp3",
+        "wav",
+        "flac",
+        "ogg",
+        "opus",
+        "aiff",
+        "wma"
+      ],
+      "to": [
+        "m4a"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-vn",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mov",
+        "mp4",
+        "m4v",
+        "mkv",
+        "webm",
+        "avi",
+        "wmv",
+        "mp3",
+        "m4a",
+        "wav",
+        "flac",
+        "opus",
+        "aiff",
+        "wma"
+      ],
+      "to": [
+        "ogg"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-vn",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mov",
+        "mp4",
+        "m4v",
+        "mkv",
+        "webm",
+        "avi",
+        "wmv",
+        "mp3",
+        "m4a",
+        "wav",
+        "flac",
+        "ogg",
+        "aiff",
+        "wma"
+      ],
+      "to": [
+        "opus"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-vn",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mov",
+        "mp4",
+        "m4v",
+        "mkv",
+        "webm",
+        "avi",
+        "wmv",
+        "mp3",
+        "m4a",
+        "wav",
+        "ogg",
+        "opus",
+        "aiff",
+        "wma"
+      ],
+      "to": [
+        "flac"
+      ],
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-vn",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mov",
+        "mp4",
+        "m4v",
+        "mkv",
+        "webm",
+        "wmv"
+      ],
+      "to": [
+        "avi"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-c:v",
+        "mpeg4",
+        "-vtag",
+        "xvid",
+        "-q:v",
+        "4",
+        "-c:a",
+        "libmp3lame",
+        "-q:a",
+        "4",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mov",
+        "mp4",
+        "m4v",
+        "mkv",
+        "webm",
+        "avi"
+      ],
+      "to": [
+        "wmv"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-c:v",
+        "wmv2",
+        "-b:v",
+        "4M",
+        "-c:a",
+        "wmav2",
+        "-b:a",
+        "192k",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mov",
+        "mp4",
+        "m4v",
+        "mkv",
+        "webm",
+        "avi",
+        "wmv",
+        "mp3",
+        "m4a",
+        "wav",
+        "flac",
+        "ogg",
+        "opus",
+        "aiff"
+      ],
+      "to": [
+        "wma"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-vn",
+        "-c:a",
+        "wmav2",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mkv"
+      ],
+      "to": [
+        "mkv"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "compress",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "-vf",
+        "scale=-2:min({videoMaxHeight:1080}\\,ih)",
+        "-c:v",
+        "libx265",
+        "-crf",
+        "28",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "webm"
+      ],
+      "to": [
+        "webm"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "compress",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "-vf",
+        "scale=-2:min({videoMaxHeight:1080}\\,ih)",
+        "-c:v",
+        "libvpx-vp9",
+        "-b:v",
+        "0",
+        "-crf",
+        "40",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mkv"
+      ],
+      "to": [
+        "mkv"
+      ],
+      "operation": "remove-audio",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map",
+        "-0:a",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "webm"
+      ],
+      "to": [
+        "webm"
+      ],
+      "operation": "remove-audio",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map",
+        "-0:a",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "avi"
+      ],
+      "to": [
+        "avi"
+      ],
+      "operation": "remove-audio",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map",
+        "-0:a",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "wmv"
+      ],
+      "to": [
+        "wmv"
+      ],
+      "operation": "remove-audio",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map",
+        "-0:a",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mkv"
+      ],
+      "to": [
+        "png"
+      ],
+      "operation": "snapshot",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-vf",
+        "thumbnail",
+        "-frames:v",
+        "1",
+        "-update",
+        "1",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "webm"
+      ],
+      "to": [
+        "png"
+      ],
+      "operation": "snapshot",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-vf",
+        "thumbnail",
+        "-frames:v",
+        "1",
+        "-update",
+        "1",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "avi"
+      ],
+      "to": [
+        "png"
+      ],
+      "operation": "snapshot",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-vf",
+        "thumbnail",
+        "-frames:v",
+        "1",
+        "-update",
+        "1",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "wmv"
+      ],
+      "to": [
+        "png"
+      ],
+      "operation": "snapshot",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-vf",
+        "thumbnail",
+        "-frames:v",
+        "1",
+        "-update",
+        "1",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mp3"
+      ],
+      "to": [
+        "mp3"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "normalize-volume",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-af",
+        "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11",
+        "-ar",
+        "48000",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "m4a"
+      ],
+      "to": [
+        "m4a"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "normalize-volume",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-af",
+        "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11",
+        "-ar",
+        "48000",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "ogg"
+      ],
+      "to": [
+        "ogg"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "normalize-volume",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-af",
+        "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11",
+        "-ar",
+        "48000",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "opus"
+      ],
+      "to": [
+        "opus"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "normalize-volume",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-af",
+        "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11",
+        "-ar",
+        "48000",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "wma"
+      ],
+      "to": [
+        "wma"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "normalize-volume",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-af",
+        "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11",
+        "-ar",
+        "48000",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "wav"
+      ],
+      "to": [
+        "wav"
+      ],
+      "operation": "normalize-volume",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-af",
+        "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11",
+        "-ar",
+        "48000",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "flac"
+      ],
+      "to": [
+        "flac"
+      ],
+      "operation": "normalize-volume",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-af",
+        "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11",
+        "-ar",
+        "48000",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "aiff"
+      ],
+      "to": [
+        "aiff"
+      ],
+      "operation": "normalize-volume",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-af",
+        "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11",
+        "-ar",
+        "48000",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mp4"
+      ],
+      "to": [
+        "mp4"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "normalize-volume",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0:v?",
+        "-map",
+        "0:a",
+        "-map",
+        "0:s?",
+        "-c",
+        "copy",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "192k",
+        "-af",
+        "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11",
+        "-ar",
+        "48000",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mov"
+      ],
+      "to": [
+        "mov"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "normalize-volume",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0:v?",
+        "-map",
+        "0:a",
+        "-map",
+        "0:s?",
+        "-c",
+        "copy",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "192k",
+        "-af",
+        "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11",
+        "-ar",
+        "48000",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "m4v"
+      ],
+      "to": [
+        "m4v"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "normalize-volume",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0:v?",
+        "-map",
+        "0:a",
+        "-map",
+        "0:s?",
+        "-c",
+        "copy",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "192k",
+        "-af",
+        "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11",
+        "-ar",
+        "48000",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mkv"
+      ],
+      "to": [
+        "mkv"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "normalize-volume",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "192k",
+        "-af",
+        "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11",
+        "-ar",
+        "48000",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "webm"
+      ],
+      "to": [
+        "webm"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "normalize-volume",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "-c:a",
+        "libopus",
+        "-b:a",
+        "160k",
+        "-af",
+        "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11",
+        "-ar",
+        "48000",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mkv"
+      ],
+      "to": [
+        "mkv"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "speed",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0:v",
+        "-map",
+        "0:a?",
+        "-filter:v",
+        "setpts=PTS/{speed:2}",
+        "-filter:a",
+        "atempo={speed:2}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "avi"
+      ],
+      "to": [
+        "avi"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "speed",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0:v",
+        "-map",
+        "0:a?",
+        "-filter:v",
+        "setpts=PTS/{speed:2}",
+        "-filter:a",
+        "atempo={speed:2}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "wmv"
+      ],
+      "to": [
+        "wmv"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "speed",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0:v",
+        "-map",
+        "0:a?",
+        "-filter:v",
+        "setpts=PTS/{speed:2}",
+        "-filter:a",
+        "atempo={speed:2}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "webm"
+      ],
+      "to": [
+        "webm"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "speed",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0:v",
+        "-map",
+        "0:a?",
+        "-filter:v",
+        "setpts=PTS/{speed:2}",
+        "-filter:a",
+        "atempo={speed:2}",
+        "-c:v",
+        "libvpx-vp9",
+        "-b:v",
+        "0",
+        "-crf",
+        "32",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mp3"
+      ],
+      "to": [
+        "mp3"
+      ],
+      "operation": "speed",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-filter:a",
+        "atempo={speed:2}",
+        "{output}"
+      ],
+      "flags": [
+        "lossy"
+      ]
+    },
+    {
+      "from": [
+        "wav"
+      ],
+      "to": [
+        "wav"
+      ],
+      "operation": "speed",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-filter:a",
+        "atempo={speed:2}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "flac"
+      ],
+      "to": [
+        "flac"
+      ],
+      "operation": "speed",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-filter:a",
+        "atempo={speed:2}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "aiff"
+      ],
+      "to": [
+        "aiff"
+      ],
+      "operation": "speed",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-filter:a",
+        "atempo={speed:2}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "ogg"
+      ],
+      "to": [
+        "ogg"
+      ],
+      "operation": "speed",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-filter:a",
+        "atempo={speed:2}",
+        "{output}"
+      ],
+      "flags": [
+        "lossy"
+      ]
+    },
+    {
+      "from": [
+        "opus"
+      ],
+      "to": [
+        "opus"
+      ],
+      "operation": "speed",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-filter:a",
+        "atempo={speed:2}",
+        "{output}"
+      ],
+      "flags": [
+        "lossy"
+      ]
+    },
+    {
+      "from": [
+        "wma"
+      ],
+      "to": [
+        "wma"
+      ],
+      "operation": "speed",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-filter:a",
+        "atempo={speed:2}",
+        "{output}"
+      ],
+      "flags": [
+        "lossy"
+      ]
+    },
+    {
+      "from": [
+        "flac"
+      ],
+      "to": [
+        "flac"
+      ],
+      "operation": "mono",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-ac",
+        "1",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mp3"
+      ],
+      "to": [
+        "mp3"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "mono",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-ac",
+        "1",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "ogg"
+      ],
+      "to": [
+        "ogg"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "mono",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-ac",
+        "1",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "opus"
+      ],
+      "to": [
+        "opus"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "mono",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-ac",
+        "1",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "wma"
+      ],
+      "to": [
+        "wma"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "operation": "mono",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-ac",
+        "1",
+        "-b:a",
+        "{audioBitrate:192k}",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mkv"
+      ],
+      "to": [
+        "mkv"
+      ],
+      "operation": "strip-metadata",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map_metadata",
+        "-1",
+        "-map_chapters",
+        "-1",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "webm"
+      ],
+      "to": [
+        "webm"
+      ],
+      "operation": "strip-metadata",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map_metadata",
+        "-1",
+        "-map_chapters",
+        "-1",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "avi"
+      ],
+      "to": [
+        "avi"
+      ],
+      "operation": "strip-metadata",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map_metadata",
+        "-1",
+        "-map_chapters",
+        "-1",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "wmv"
+      ],
+      "to": [
+        "wmv"
+      ],
+      "operation": "strip-metadata",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map_metadata",
+        "-1",
+        "-map_chapters",
+        "-1",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mp3"
+      ],
+      "to": [
+        "mp3"
+      ],
+      "operation": "strip-metadata",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map_metadata",
+        "-1",
+        "-map_chapters",
+        "-1",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "flac"
+      ],
+      "to": [
+        "flac"
+      ],
+      "operation": "strip-metadata",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map_metadata",
+        "-1",
+        "-map_chapters",
+        "-1",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "ogg"
+      ],
+      "to": [
+        "ogg"
+      ],
+      "operation": "strip-metadata",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map_metadata",
+        "-1",
+        "-map_chapters",
+        "-1",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "opus"
+      ],
+      "to": [
+        "opus"
+      ],
+      "operation": "strip-metadata",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map_metadata",
+        "-1",
+        "-map_chapters",
+        "-1",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "wav"
+      ],
+      "to": [
+        "wav"
+      ],
+      "operation": "strip-metadata",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map_metadata",
+        "-1",
+        "-map_chapters",
+        "-1",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "aiff"
+      ],
+      "to": [
+        "aiff"
+      ],
+      "operation": "strip-metadata",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map_metadata",
+        "-1",
+        "-map_chapters",
+        "-1",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "wma"
+      ],
+      "to": [
+        "wma"
+      ],
+      "operation": "strip-metadata",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-map",
+        "0",
+        "-map_metadata",
+        "-1",
+        "-map_chapters",
+        "-1",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "mp3"
+      ],
+      "to": [
+        "mp3"
+      ],
+      "operation": "trim",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-ss",
+        "{trimStart}",
+        "-to",
+        "{trimEnd}",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "flac"
+      ],
+      "to": [
+        "flac"
+      ],
+      "operation": "trim",
+      "arguments": [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        "{input}",
+        "-ss",
+        "{trimStart}",
+        "-to",
+        "{trimEnd}",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "-c:a",
+        "flac",
+        "{output}"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+name: Bug report
+description: Something doesn't work as it should.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: files
+    attributes:
+      label: Files involved
+      description: The format and roughly the size of the files you dragged (e.g. "a 2 GB MOV").
+  - type: input
+    id: pomelo
+    attributes:
+      label: Pomelo version
+      description: Settings › About.
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      description: For example "macOS 26.1 on a MacBook Air M2".
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Screenshots, the wheel's error message, or the output of `pomelo convert <file> --to <format>`.

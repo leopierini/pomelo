@@ -1,0 +1,9 @@
+.build/
+.swiftpm/
+App/*.xcodeproj
+App/build/
+.DS_Store
+xcuserdata/
+*.xcodeproj
+evals/corpus/
+evals/results/

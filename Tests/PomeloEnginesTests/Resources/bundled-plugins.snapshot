@@ -1,0 +1,298 @@
+failures 0
+plugin cwebp | cwebp | names ["cwebp"] | paths ["/opt/homebrew/bin", "/usr/local/bin"] | version ["-version"]
+  install webp https://developers.google.com/speed/webp/download | jobs - | cost - | timeout -
+  edge ["png"] > ["webp"] | op - | flags ["lossy"] | cost - | out - | ["-quiet", "-q", "{quality:80}", "{input}", "-o", "{output}"]
+  registers png > webp | cwebp | op - | cost 30 | flags 1
+plugin ffmpeg | FFmpeg | names ["ffmpeg"] | paths ["/opt/homebrew/bin", "/usr/local/bin"] | version ["-version"]
+  install ffmpeg https://ffmpeg.org/download.html | jobs 2 | cost - | timeout -
+  edge ["mov", "m4v", "mkv", "webm", "avi", "wmv"] > ["mp4"] | op - | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-c:v", "libx264", "-crf", "23", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "{output}"]
+  edge ["mov", "mp4", "m4v", "mkv", "avi", "wmv"] > ["webm"] | op - | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "32", "{output}"]
+  edge ["mov", "mp4", "m4v", "webm", "avi", "wmv"] > ["mkv"] | op - | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-c:v", "libx264", "-crf", "23", "-pix_fmt", "yuv420p", "{output}"]
+  edge ["mov", "mp4", "m4v", "mkv", "webm", "avi", "wmv"] > ["gif"] | op - | flags ["lossy", "directOnly"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-vf", "fps=12,scale=480:-1", "{output}"]
+  edge ["mov", "mp4", "m4v", "mkv", "webm", "avi", "wmv", "m4a", "wav", "flac", "ogg", "opus", "aiff", "wma"] > ["mp3"] | op - | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-vn", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["mov", "mp4", "m4v", "mkv", "webm", "avi", "wmv", "mp3", "wav", "flac", "ogg", "opus", "aiff", "wma"] > ["m4a"] | op - | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-vn", "-c:a", "aac", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["mov", "mp4", "m4v", "mkv", "webm", "avi", "wmv", "mp3", "m4a", "wav", "flac", "opus", "aiff", "wma"] > ["ogg"] | op - | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-vn", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["mov", "mp4", "m4v", "mkv", "webm", "avi", "wmv", "mp3", "m4a", "wav", "flac", "ogg", "aiff", "wma"] > ["opus"] | op - | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-vn", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["mov", "mp4", "m4v", "mkv", "webm", "avi", "wmv", "mp3", "m4a", "wav", "ogg", "opus", "aiff", "wma"] > ["flac"] | op - | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-vn", "{output}"]
+  edge ["mov", "mp4", "m4v", "mkv", "webm", "wmv"] > ["avi"] | op - | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-c:v", "mpeg4", "-vtag", "xvid", "-q:v", "4", "-c:a", "libmp3lame", "-q:a", "4", "{output}"]
+  edge ["mov", "mp4", "m4v", "mkv", "webm", "avi"] > ["wmv"] | op - | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-c:v", "wmv2", "-b:v", "4M", "-c:a", "wmav2", "-b:a", "192k", "{output}"]
+  edge ["mov", "mp4", "m4v", "mkv", "webm", "avi", "wmv", "mp3", "m4a", "wav", "flac", "ogg", "opus", "aiff"] > ["wma"] | op - | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-vn", "-c:a", "wmav2", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["mkv"] > ["mkv"] | op compress | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-c", "copy", "-vf", "scale=-2:min({videoMaxHeight:1080}\\,ih)", "-c:v", "libx265", "-crf", "28", "{output}"]
+  edge ["webm"] > ["webm"] | op compress | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-c", "copy", "-vf", "scale=-2:min({videoMaxHeight:1080}\\,ih)", "-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "40", "{output}"]
+  edge ["mkv"] > ["mkv"] | op remove-audio | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map", "-0:a", "-c", "copy", "{output}"]
+  edge ["webm"] > ["webm"] | op remove-audio | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map", "-0:a", "-c", "copy", "{output}"]
+  edge ["avi"] > ["avi"] | op remove-audio | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map", "-0:a", "-c", "copy", "{output}"]
+  edge ["wmv"] > ["wmv"] | op remove-audio | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map", "-0:a", "-c", "copy", "{output}"]
+  edge ["mkv"] > ["png"] | op snapshot | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-vf", "thumbnail", "-frames:v", "1", "-update", "1", "{output}"]
+  edge ["webm"] > ["png"] | op snapshot | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-vf", "thumbnail", "-frames:v", "1", "-update", "1", "{output}"]
+  edge ["avi"] > ["png"] | op snapshot | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-vf", "thumbnail", "-frames:v", "1", "-update", "1", "{output}"]
+  edge ["wmv"] > ["png"] | op snapshot | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-vf", "thumbnail", "-frames:v", "1", "-update", "1", "{output}"]
+  edge ["mp3"] > ["mp3"] | op normalize-volume | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-af", "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11", "-ar", "48000", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["m4a"] > ["m4a"] | op normalize-volume | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-af", "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11", "-ar", "48000", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["ogg"] > ["ogg"] | op normalize-volume | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-af", "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11", "-ar", "48000", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["opus"] > ["opus"] | op normalize-volume | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-af", "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11", "-ar", "48000", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["wma"] > ["wma"] | op normalize-volume | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-af", "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11", "-ar", "48000", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["wav"] > ["wav"] | op normalize-volume | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-af", "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11", "-ar", "48000", "{output}"]
+  edge ["flac"] > ["flac"] | op normalize-volume | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-af", "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11", "-ar", "48000", "{output}"]
+  edge ["aiff"] > ["aiff"] | op normalize-volume | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-af", "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11", "-ar", "48000", "{output}"]
+  edge ["mp4"] > ["mp4"] | op normalize-volume | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0:v?", "-map", "0:a", "-map", "0:s?", "-c", "copy", "-c:a", "aac", "-b:a", "192k", "-af", "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11", "-ar", "48000", "{output}"]
+  edge ["mov"] > ["mov"] | op normalize-volume | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0:v?", "-map", "0:a", "-map", "0:s?", "-c", "copy", "-c:a", "aac", "-b:a", "192k", "-af", "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11", "-ar", "48000", "{output}"]
+  edge ["m4v"] > ["m4v"] | op normalize-volume | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0:v?", "-map", "0:a", "-map", "0:s?", "-c", "copy", "-c:a", "aac", "-b:a", "192k", "-af", "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11", "-ar", "48000", "{output}"]
+  edge ["mkv"] > ["mkv"] | op normalize-volume | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-c", "copy", "-c:a", "aac", "-b:a", "192k", "-af", "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11", "-ar", "48000", "{output}"]
+  edge ["webm"] > ["webm"] | op normalize-volume | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-c", "copy", "-c:a", "libopus", "-b:a", "160k", "-af", "loudnorm=I={loudness:-16}:TP=-1.5:LRA=11", "-ar", "48000", "{output}"]
+  edge ["mkv"] > ["mkv"] | op speed | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0:v", "-map", "0:a?", "-filter:v", "setpts=PTS/{speed:2}", "-filter:a", "atempo={speed:2}", "{output}"]
+  edge ["avi"] > ["avi"] | op speed | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0:v", "-map", "0:a?", "-filter:v", "setpts=PTS/{speed:2}", "-filter:a", "atempo={speed:2}", "{output}"]
+  edge ["wmv"] > ["wmv"] | op speed | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0:v", "-map", "0:a?", "-filter:v", "setpts=PTS/{speed:2}", "-filter:a", "atempo={speed:2}", "{output}"]
+  edge ["webm"] > ["webm"] | op speed | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0:v", "-map", "0:a?", "-filter:v", "setpts=PTS/{speed:2}", "-filter:a", "atempo={speed:2}", "-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "32", "{output}"]
+  edge ["mp3"] > ["mp3"] | op speed | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-filter:a", "atempo={speed:2}", "{output}"]
+  edge ["wav"] > ["wav"] | op speed | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-filter:a", "atempo={speed:2}", "{output}"]
+  edge ["flac"] > ["flac"] | op speed | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-filter:a", "atempo={speed:2}", "{output}"]
+  edge ["aiff"] > ["aiff"] | op speed | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-filter:a", "atempo={speed:2}", "{output}"]
+  edge ["ogg"] > ["ogg"] | op speed | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-filter:a", "atempo={speed:2}", "{output}"]
+  edge ["opus"] > ["opus"] | op speed | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-filter:a", "atempo={speed:2}", "{output}"]
+  edge ["wma"] > ["wma"] | op speed | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-filter:a", "atempo={speed:2}", "{output}"]
+  edge ["flac"] > ["flac"] | op mono | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-ac", "1", "{output}"]
+  edge ["mp3"] > ["mp3"] | op mono | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-ac", "1", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["ogg"] > ["ogg"] | op mono | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-ac", "1", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["opus"] > ["opus"] | op mono | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-ac", "1", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["wma"] > ["wma"] | op mono | flags ["lossy"] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-ac", "1", "-b:a", "{audioBitrate:192k}", "{output}"]
+  edge ["mkv"] > ["mkv"] | op strip-metadata | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map_metadata", "-1", "-map_chapters", "-1", "-c", "copy", "{output}"]
+  edge ["webm"] > ["webm"] | op strip-metadata | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map_metadata", "-1", "-map_chapters", "-1", "-c", "copy", "{output}"]
+  edge ["avi"] > ["avi"] | op strip-metadata | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map_metadata", "-1", "-map_chapters", "-1", "-c", "copy", "{output}"]
+  edge ["wmv"] > ["wmv"] | op strip-metadata | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map_metadata", "-1", "-map_chapters", "-1", "-c", "copy", "{output}"]
+  edge ["mp3"] > ["mp3"] | op strip-metadata | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map_metadata", "-1", "-map_chapters", "-1", "-c", "copy", "{output}"]
+  edge ["flac"] > ["flac"] | op strip-metadata | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map_metadata", "-1", "-map_chapters", "-1", "-c", "copy", "{output}"]
+  edge ["ogg"] > ["ogg"] | op strip-metadata | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map_metadata", "-1", "-map_chapters", "-1", "-c", "copy", "{output}"]
+  edge ["opus"] > ["opus"] | op strip-metadata | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map_metadata", "-1", "-map_chapters", "-1", "-c", "copy", "{output}"]
+  edge ["wav"] > ["wav"] | op strip-metadata | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map_metadata", "-1", "-map_chapters", "-1", "-c", "copy", "{output}"]
+  edge ["aiff"] > ["aiff"] | op strip-metadata | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map_metadata", "-1", "-map_chapters", "-1", "-c", "copy", "{output}"]
+  edge ["wma"] > ["wma"] | op strip-metadata | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-map", "0", "-map_metadata", "-1", "-map_chapters", "-1", "-c", "copy", "{output}"]
+  edge ["mp3"] > ["mp3"] | op trim | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-ss", "{trimStart}", "-to", "{trimEnd}", "-map", "0", "-c", "copy", "{output}"]
+  edge ["flac"] > ["flac"] | op trim | flags [] | cost - | out - | ["-hide_banner", "-nostdin", "-y", "-i", "{input}", "-ss", "{trimStart}", "-to", "{trimEnd}", "-map", "0", "-c", "copy", "-c:a", "flac", "{output}"]
+  registers mov > mp4 | ffmpeg | op - | cost 30 | flags 1
+  registers m4v > mp4 | ffmpeg | op - | cost 30 | flags 1
+  registers mkv > mp4 | ffmpeg | op - | cost 30 | flags 1
+  registers webm > mp4 | ffmpeg | op - | cost 30 | flags 1
+  registers avi > mp4 | ffmpeg | op - | cost 30 | flags 1
+  registers wmv > mp4 | ffmpeg | op - | cost 30 | flags 1
+  registers mov > webm | ffmpeg | op - | cost 30 | flags 1
+  registers mp4 > webm | ffmpeg | op - | cost 30 | flags 1
+  registers m4v > webm | ffmpeg | op - | cost 30 | flags 1
+  registers mkv > webm | ffmpeg | op - | cost 30 | flags 1
+  registers avi > webm | ffmpeg | op - | cost 30 | flags 1
+  registers wmv > webm | ffmpeg | op - | cost 30 | flags 1
+  registers mov > mkv | ffmpeg | op - | cost 30 | flags 1
+  registers mp4 > mkv | ffmpeg | op - | cost 30 | flags 1
+  registers m4v > mkv | ffmpeg | op - | cost 30 | flags 1
+  registers webm > mkv | ffmpeg | op - | cost 30 | flags 1
+  registers avi > mkv | ffmpeg | op - | cost 30 | flags 1
+  registers wmv > mkv | ffmpeg | op - | cost 30 | flags 1
+  registers mov > gif | ffmpeg | op - | cost 30 | flags 5
+  registers mp4 > gif | ffmpeg | op - | cost 30 | flags 5
+  registers m4v > gif | ffmpeg | op - | cost 30 | flags 5
+  registers mkv > gif | ffmpeg | op - | cost 30 | flags 5
+  registers webm > gif | ffmpeg | op - | cost 30 | flags 5
+  registers avi > gif | ffmpeg | op - | cost 30 | flags 5
+  registers wmv > gif | ffmpeg | op - | cost 30 | flags 5
+  registers mov > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers mp4 > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers m4v > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers mkv > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers webm > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers avi > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers wmv > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers m4a > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers wav > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers flac > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers ogg > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers opus > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers aiff > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers wma > mp3 | ffmpeg | op - | cost 30 | flags 1
+  registers mov > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers mp4 > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers m4v > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers mkv > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers webm > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers avi > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers wmv > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers mp3 > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers wav > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers flac > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers ogg > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers opus > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers aiff > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers wma > m4a | ffmpeg | op - | cost 30 | flags 1
+  registers mov > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers mp4 > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers m4v > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers mkv > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers webm > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers avi > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers wmv > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers mp3 > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers m4a > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers wav > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers flac > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers opus > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers aiff > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers wma > ogg | ffmpeg | op - | cost 30 | flags 1
+  registers mov > opus | ffmpeg | op - | cost 30 | flags 1
+  registers mp4 > opus | ffmpeg | op - | cost 30 | flags 1
+  registers m4v > opus | ffmpeg | op - | cost 30 | flags 1
+  registers mkv > opus | ffmpeg | op - | cost 30 | flags 1
+  registers webm > opus | ffmpeg | op - | cost 30 | flags 1
+  registers avi > opus | ffmpeg | op - | cost 30 | flags 1
+  registers wmv > opus | ffmpeg | op - | cost 30 | flags 1
+  registers mp3 > opus | ffmpeg | op - | cost 30 | flags 1
+  registers m4a > opus | ffmpeg | op - | cost 30 | flags 1
+  registers wav > opus | ffmpeg | op - | cost 30 | flags 1
+  registers flac > opus | ffmpeg | op - | cost 30 | flags 1
+  registers ogg > opus | ffmpeg | op - | cost 30 | flags 1
+  registers aiff > opus | ffmpeg | op - | cost 30 | flags 1
+  registers wma > opus | ffmpeg | op - | cost 30 | flags 1
+  registers mov > flac | ffmpeg | op - | cost 30 | flags 0
+  registers mp4 > flac | ffmpeg | op - | cost 30 | flags 0
+  registers m4v > flac | ffmpeg | op - | cost 30 | flags 0
+  registers mkv > flac | ffmpeg | op - | cost 30 | flags 0
+  registers webm > flac | ffmpeg | op - | cost 30 | flags 0
+  registers avi > flac | ffmpeg | op - | cost 30 | flags 0
+  registers wmv > flac | ffmpeg | op - | cost 30 | flags 0
+  registers mp3 > flac | ffmpeg | op - | cost 30 | flags 0
+  registers m4a > flac | ffmpeg | op - | cost 30 | flags 0
+  registers wav > flac | ffmpeg | op - | cost 30 | flags 0
+  registers ogg > flac | ffmpeg | op - | cost 30 | flags 0
+  registers opus > flac | ffmpeg | op - | cost 30 | flags 0
+  registers aiff > flac | ffmpeg | op - | cost 30 | flags 0
+  registers wma > flac | ffmpeg | op - | cost 30 | flags 0
+  registers mov > avi | ffmpeg | op - | cost 30 | flags 1
+  registers mp4 > avi | ffmpeg | op - | cost 30 | flags 1
+  registers m4v > avi | ffmpeg | op - | cost 30 | flags 1
+  registers mkv > avi | ffmpeg | op - | cost 30 | flags 1
+  registers webm > avi | ffmpeg | op - | cost 30 | flags 1
+  registers wmv > avi | ffmpeg | op - | cost 30 | flags 1
+  registers mov > wmv | ffmpeg | op - | cost 30 | flags 1
+  registers mp4 > wmv | ffmpeg | op - | cost 30 | flags 1
+  registers m4v > wmv | ffmpeg | op - | cost 30 | flags 1
+  registers mkv > wmv | ffmpeg | op - | cost 30 | flags 1
+  registers webm > wmv | ffmpeg | op - | cost 30 | flags 1
+  registers avi > wmv | ffmpeg | op - | cost 30 | flags 1
+  registers mov > wma | ffmpeg | op - | cost 30 | flags 1
+  registers mp4 > wma | ffmpeg | op - | cost 30 | flags 1
+  registers m4v > wma | ffmpeg | op - | cost 30 | flags 1
+  registers mkv > wma | ffmpeg | op - | cost 30 | flags 1
+  registers webm > wma | ffmpeg | op - | cost 30 | flags 1
+  registers avi > wma | ffmpeg | op - | cost 30 | flags 1
+  registers wmv > wma | ffmpeg | op - | cost 30 | flags 1
+  registers mp3 > wma | ffmpeg | op - | cost 30 | flags 1
+  registers m4a > wma | ffmpeg | op - | cost 30 | flags 1
+  registers wav > wma | ffmpeg | op - | cost 30 | flags 1
+  registers flac > wma | ffmpeg | op - | cost 30 | flags 1
+  registers ogg > wma | ffmpeg | op - | cost 30 | flags 1
+  registers opus > wma | ffmpeg | op - | cost 30 | flags 1
+  registers aiff > wma | ffmpeg | op - | cost 30 | flags 1
+  registers mkv > mkv | ffmpeg | op compress | cost 30 | flags 1
+  registers webm > webm | ffmpeg | op compress | cost 30 | flags 1
+  registers mkv > mkv | ffmpeg | op remove-audio | cost 30 | flags 0
+  registers webm > webm | ffmpeg | op remove-audio | cost 30 | flags 0
+  registers avi > avi | ffmpeg | op remove-audio | cost 30 | flags 0
+  registers wmv > wmv | ffmpeg | op remove-audio | cost 30 | flags 0
+  registers mkv > png | ffmpeg | op snapshot | cost 30 | flags 0
+  registers webm > png | ffmpeg | op snapshot | cost 30 | flags 0
+  registers avi > png | ffmpeg | op snapshot | cost 30 | flags 0
+  registers wmv > png | ffmpeg | op snapshot | cost 30 | flags 0
+  registers mp3 > mp3 | ffmpeg | op normalize-volume | cost 30 | flags 1
+  registers m4a > m4a | ffmpeg | op normalize-volume | cost 30 | flags 1
+  registers ogg > ogg | ffmpeg | op normalize-volume | cost 30 | flags 1
+  registers opus > opus | ffmpeg | op normalize-volume | cost 30 | flags 1
+  registers wma > wma | ffmpeg | op normalize-volume | cost 30 | flags 1
+  registers wav > wav | ffmpeg | op normalize-volume | cost 30 | flags 0
+  registers flac > flac | ffmpeg | op normalize-volume | cost 30 | flags 0
+  registers aiff > aiff | ffmpeg | op normalize-volume | cost 30 | flags 0
+  registers mp4 > mp4 | ffmpeg | op normalize-volume | cost 30 | flags 1
+  registers mov > mov | ffmpeg | op normalize-volume | cost 30 | flags 1
+  registers m4v > m4v | ffmpeg | op normalize-volume | cost 30 | flags 1
+  registers mkv > mkv | ffmpeg | op normalize-volume | cost 30 | flags 1
+  registers webm > webm | ffmpeg | op normalize-volume | cost 30 | flags 1
+  registers mkv > mkv | ffmpeg | op speed | cost 30 | flags 1
+  registers avi > avi | ffmpeg | op speed | cost 30 | flags 1
+  registers wmv > wmv | ffmpeg | op speed | cost 30 | flags 1
+  registers webm > webm | ffmpeg | op speed | cost 30 | flags 1
+  registers mp3 > mp3 | ffmpeg | op speed | cost 30 | flags 1
+  registers wav > wav | ffmpeg | op speed | cost 30 | flags 0
+  registers flac > flac | ffmpeg | op speed | cost 30 | flags 0
+  registers aiff > aiff | ffmpeg | op speed | cost 30 | flags 0
+  registers ogg > ogg | ffmpeg | op speed | cost 30 | flags 1
+  registers opus > opus | ffmpeg | op speed | cost 30 | flags 1
+  registers wma > wma | ffmpeg | op speed | cost 30 | flags 1
+  registers flac > flac | ffmpeg | op mono | cost 30 | flags 0
+  registers mp3 > mp3 | ffmpeg | op mono | cost 30 | flags 1
+  registers ogg > ogg | ffmpeg | op mono | cost 30 | flags 1
+  registers opus > opus | ffmpeg | op mono | cost 30 | flags 1
+  registers wma > wma | ffmpeg | op mono | cost 30 | flags 1
+  registers mkv > mkv | ffmpeg | op strip-metadata | cost 30 | flags 0
+  registers webm > webm | ffmpeg | op strip-metadata | cost 30 | flags 0
+  registers avi > avi | ffmpeg | op strip-metadata | cost 30 | flags 0
+  registers wmv > wmv | ffmpeg | op strip-metadata | cost 30 | flags 0
+  registers mp3 > mp3 | ffmpeg | op strip-metadata | cost 30 | flags 0
+  registers flac > flac | ffmpeg | op strip-metadata | cost 30 | flags 0
+  registers ogg > ogg | ffmpeg | op strip-metadata | cost 30 | flags 0
+  registers opus > opus | ffmpeg | op strip-metadata | cost 30 | flags 0
+  registers wav > wav | ffmpeg | op strip-metadata | cost 30 | flags 0
+  registers aiff > aiff | ffmpeg | op strip-metadata | cost 30 | flags 0
+  registers wma > wma | ffmpeg | op strip-metadata | cost 30 | flags 0
+  registers mp3 > mp3 | ffmpeg | op trim | cost 30 | flags 0
+  registers flac > flac | ffmpeg | op trim | cost 30 | flags 0
+plugin libreoffice | LibreOffice | names ["soffice"] | paths ["/Applications/LibreOffice.app/Contents/MacOS"] | version ["--version"]
+  install --cask libreoffice https://www.libreoffice.org/download/ | jobs 1 | cost 60 | timeout -
+  edge ["doc", "docx", "odt", "rtf", "ppt", "pptx", "odp", "xls", "xlsx", "ods"] > ["pdf"] | op - | flags [] | cost - | out - | ["-env:UserInstallation={tempDirURL}profile", "--headless", "--convert-to", "pdf", "--outdir", "{outputDir}", "{input}"]
+  registers doc > pdf | libreoffice | op - | cost 60 | flags 0
+  registers docx > pdf | libreoffice | op - | cost 60 | flags 0
+  registers odt > pdf | libreoffice | op - | cost 60 | flags 0
+  registers rtf > pdf | libreoffice | op - | cost 60 | flags 0
+  registers ppt > pdf | libreoffice | op - | cost 60 | flags 0
+  registers pptx > pdf | libreoffice | op - | cost 60 | flags 0
+  registers odp > pdf | libreoffice | op - | cost 60 | flags 0
+  registers xls > pdf | libreoffice | op - | cost 60 | flags 0
+  registers xlsx > pdf | libreoffice | op - | cost 60 | flags 0
+  registers ods > pdf | libreoffice | op - | cost 60 | flags 0
+plugin pandoc | Pandoc | names ["pandoc"] | paths ["/opt/homebrew/bin", "/usr/local/bin"] | version ["--version"]
+  install pandoc https://pandoc.org/installing.html | jobs - | cost - | timeout -
+  edge ["html", "docx", "odt", "epub"] > ["md"] | op - | flags [] | cost - | out - | ["{input}", "-o", "{output}"]
+  edge ["md", "docx", "odt", "epub"] > ["html"] | op - | flags [] | cost - | out - | ["-s", "{input}", "-o", "{output}"]
+  edge ["md", "html", "odt", "epub"] > ["docx"] | op - | flags [] | cost - | out - | ["{input}", "-o", "{output}"]
+  edge ["md", "html", "docx", "epub"] > ["odt"] | op - | flags [] | cost - | out - | ["{input}", "-o", "{output}"]
+  edge ["md", "html", "docx", "odt"] > ["epub"] | op - | flags [] | cost - | out - | ["{input}", "-o", "{output}"]
+  edge ["md", "html", "docx", "odt", "epub"] > ["txt"] | op - | flags [] | cost - | out - | ["{input}", "-t", "plain", "-o", "{output}"]
+  registers html > md | pandoc | op - | cost 30 | flags 0
+  registers docx > md | pandoc | op - | cost 30 | flags 0
+  registers odt > md | pandoc | op - | cost 30 | flags 0
+  registers epub > md | pandoc | op - | cost 30 | flags 0
+  registers md > html | pandoc | op - | cost 30 | flags 0
+  registers docx > html | pandoc | op - | cost 30 | flags 0
+  registers odt > html | pandoc | op - | cost 30 | flags 0
+  registers epub > html | pandoc | op - | cost 30 | flags 0
+  registers md > docx | pandoc | op - | cost 30 | flags 0
+  registers html > docx | pandoc | op - | cost 30 | flags 0
+  registers odt > docx | pandoc | op - | cost 30 | flags 0
+  registers epub > docx | pandoc | op - | cost 30 | flags 0
+  registers md > odt | pandoc | op - | cost 30 | flags 0
+  registers html > odt | pandoc | op - | cost 30 | flags 0
+  registers docx > odt | pandoc | op - | cost 30 | flags 0
+  registers epub > odt | pandoc | op - | cost 30 | flags 0
+  registers md > epub | pandoc | op - | cost 30 | flags 0
+  registers html > epub | pandoc | op - | cost 30 | flags 0
+  registers docx > epub | pandoc | op - | cost 30 | flags 0
+  registers odt > epub | pandoc | op - | cost 30 | flags 0
+  registers md > txt | pandoc | op - | cost 30 | flags 0
+  registers html > txt | pandoc | op - | cost 30 | flags 0
+  registers docx > txt | pandoc | op - | cost 30 | flags 0
+  registers odt > txt | pandoc | op - | cost 30 | flags 0
+  registers epub > txt | pandoc | op - | cost 30 | flags 0
+plugin pngquant | pngquant | names ["pngquant"] | paths ["/opt/homebrew/bin", "/usr/local/bin"] | version ["--version"]
+  install pngquant https://pngquant.org | jobs - | cost - | timeout -
+  edge ["png"] > ["png"] | op compress | flags ["lossy"] | cost - | out - | ["--quality=0-{quality:70}", "--speed", "3", "--force", "--output", "{output}", "--", "{input}"]
+  registers png > png | pngquant | op compress | cost 30 | flags 1
+plugin unar | The Unarchiver (unar) | names ["unar"] | paths ["/opt/homebrew/bin", "/usr/local/bin"] | version ["-v"]
+  install unar https://theunarchiver.com/command-line | jobs - | cost - | timeout 3600
+  edge ["rar"] > ["rar"] | op extract | flags [] | cost - | out folder | ["-q", "-D", "-o", "{outputFolder}", "{input}"]
+  registers rar > rar | unar | op extract | cost 30 | flags 0

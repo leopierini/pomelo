@@ -1,0 +1,40 @@
+{
+  "id": "unar",
+  "displayName": "The Unarchiver (unar)",
+  "executable": {
+    "names": [
+      "unar"
+    ],
+    "searchPaths": [
+      "/opt/homebrew/bin",
+      "/usr/local/bin"
+    ],
+    "versionArguments": [
+      "-v"
+    ]
+  },
+  "install": {
+    "homebrew": "unar",
+    "website": "https://theunarchiver.com/command-line"
+  },
+  "timeoutSeconds": 3600,
+  "edges": [
+    {
+      "from": [
+        "rar"
+      ],
+      "to": [
+        "rar"
+      ],
+      "operation": "extract",
+      "output": "folder",
+      "arguments": [
+        "-q",
+        "-D",
+        "-o",
+        "{outputFolder}",
+        "{input}"
+      ]
+    }
+  ]
+}

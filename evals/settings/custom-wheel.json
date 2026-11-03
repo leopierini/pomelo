@@ -1,0 +1,10 @@
+{
+  "wheels": {
+    "kind.image": {
+      "pages": [
+        {"name": "Mine", "slots": ["convert.png", "convert.jpg", "convert.webp", "convert.heic", "preset.half-size", "preset.strip-metadata", "editor.crop", "action.makeZip"]},
+        {"name": "More", "slots": ["convert.pdf", "preset.compress", "action.copyPaths"]}
+      ]
+    }
+  }
+}

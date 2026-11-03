@@ -1,0 +1,166 @@
+name: Pomelo
+options:
+  bundleIdPrefix: io.github.pomelo-app
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    # One version for the app and its extension: an embedded extension must carry its app's version.
+    MARKETING_VERSION: 0.1.0
+    CURRENT_PROJECT_VERSION: 1
+    # evals/run.sh gives its build its own identity (P45); the extension's must start with the app's.
+    POMELO_BUNDLE_IDENTIFIER: io.github.pomelo-app.Pomelo
+packages:
+  Pomelo:
+    path: ..
+targets:
+  Pomelo:
+    type: application
+    platform: macOS
+    scheme:
+      testTargets:
+        - PomeloAppTests
+    sources:
+      - path: Sources
+      - path: Resources
+    dependencies:
+      - package: Pomelo
+        product: PomeloCore
+      - package: Pomelo
+        product: PomeloEngines
+      - package: Pomelo
+        product: PomeloUIModel
+      # Embedded in Contents/PlugIns.
+      - target: PomeloQuickAction
+    info:
+      path: Info.plist
+      properties:
+        LSUIElement: true
+        # Rank None: Pomelo never opens a type by default, but Finder accepts a drop of any file on its icon (P102).
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: File
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: None
+            LSItemContentTypes:
+              - public.item
+        # The wheel editor's drag type (UTType.wheelSlot), private to Pomelo's editor. Another app that accepts any
+        # data would only see the slot id, which is harmless.
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: io.github.pomelo-app.wheel-slot
+            UTTypeDescription: Pomelo wheel slot
+            UTTypeConformsTo:
+              - public.data
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSAppleEventsUsageDescription: Pomelo reads the files selected in Finder when you press the Convert shortcut.
+        # Shown in macOS's prompt the first time Pomelo saves a result in one of these places, next to its original.
+        NSDesktopFolderUsageDescription: Pomelo saves converted files next to the originals you drop on it.
+        NSDocumentsFolderUsageDescription: Pomelo saves converted files next to the originals you drop on it.
+        NSDownloadsFolderUsageDescription: Pomelo saves converted files next to the originals you drop on it.
+        NSRemovableVolumesUsageDescription: Pomelo saves converted files next to the originals you drop on it.
+        NSNetworkVolumesUsageDescription: Pomelo saves converted files next to the originals you drop on it.
+        NSServices:
+          - NSMenuItem:
+              default: Convert with Pomelo…
+            NSMessage: convertFiles
+            NSSendFileTypes:
+              - public.item
+            NSRequiredContext: {}
+    entitlements:
+      path: Pomelo.entitlements
+      properties:
+        com.apple.security.automation.apple-events: true
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_ENTITLEMENTS: Pomelo.entitlements
+        PRODUCT_BUNDLE_IDENTIFIER: $(POMELO_BUNDLE_IDENTIFIER)
+        # evals/run.sh names its build apart, so xctrace can tell it from any other Pomelo on the machine (P45).
+        PRODUCT_NAME: $(POMELO_PRODUCT_NAME:default=Pomelo)
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      configs:
+        Release:
+          # No get-task-allow, which Xcode's local signing adds otherwise: a shipped hardened-runtime app must not be
+          # debuggable by any process (P144). Debug keeps it for the debugger.
+          CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+          # Strip the shipped binary (more than half of it was symbols); the dSYM is made before the strip, so crash
+          # reports still symbolicate. non-global, not all: all keeps every undefined Swift symbol and comes out larger.
+          DEPLOYMENT_POSTPROCESSING: YES
+          STRIP_INSTALLED_PRODUCT: YES
+          STRIP_STYLE: non-global
+          STRIP_SWIFT_SYMBOLS: YES
+          # Like the package's modules (Package.swift, sizeOptimized).
+          SWIFT_OPTIMIZATION_LEVEL: -Osize
+          # Lossless either way: zip instead of lzfse makes Assets.car (mostly the icon) about a quarter smaller.
+          ASSETCATALOG_COMPILER_OPTIMIZATION: space
+          # Nothing looks up symbols in the app's image (no plugins; App Intents read type metadata), so its export
+          # trie is dead weight (P149).
+          LD_EXPORT_SYMBOLS: NO
+  # Finder's Quick Action (P101): sandboxed, it only hands the selected files to the app.
+  PomeloQuickAction:
+    type: app-extension
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: QuickAction
+        excludes:
+          - Info.plist
+    info:
+      path: QuickAction/Info.plist
+      properties:
+        CFBundleDisplayName: Convert with Pomelo
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ActionRequestHandler
+          NSExtensionAttributes:
+            NSExtensionServiceRoleType: NSExtensionServiceRoleTypeEditor
+            NSExtensionServiceAllowsFinderPreviewItem: true
+            NSExtensionServiceFinderPreviewIconName: QuickActionIcon
+            NSExtensionActivationRule: >-
+              SUBQUERY(extensionItems, $item, SUBQUERY($item.attachments, $a, ANY $a.registeredTypeIdentifiers
+              UTI-CONFORMS-TO "public.file-url").@count >= 1).@count >= 1
+    entitlements:
+      path: PomeloQuickAction.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_ENTITLEMENTS: PomeloQuickAction.entitlements
+        # The sandbox is its one entitlement: no get-task-allow, which Xcode's local signing adds otherwise.
+        CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+        PRODUCT_BUNDLE_IDENTIFIER: $(POMELO_BUNDLE_IDENTIFIER).QuickAction
+        GENERATE_INFOPLIST_FILE: NO
+      configs:
+        # Stripped like the app's Release build.
+        Release:
+          DEPLOYMENT_POSTPROCESSING: YES
+          STRIP_INSTALLED_PRODUCT: YES
+          STRIP_STYLE: non-global
+          STRIP_SWIFT_SYMBOLS: YES
+  PomeloAppTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests
+      # Compiled in, not linked: PomeloTestSupport is not a product, and linking it would duplicate PomeloCore (P33).
+      - path: ../Sources/PomeloTestSupport/Fixtures.swift
+      - path: ../Sources/PomeloTestSupport/FakeEngine.swift
+      - path: ../Sources/PomeloTestSupport/FakeTranslating.swift
+      - path: ../Sources/PomeloTestSupport/Installed.swift
+      - path: QuickAction/QuickActionHandoff.swift
+    dependencies:
+      - target: Pomelo
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        CODE_SIGN_IDENTITY: "-"
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.pomelo-app.PomeloAppTests

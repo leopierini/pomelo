@@ -1,0 +1,122 @@
+{
+  "id": "pandoc",
+  "displayName": "Pandoc",
+  "executable": {
+    "names": [
+      "pandoc"
+    ],
+    "searchPaths": [
+      "/opt/homebrew/bin",
+      "/usr/local/bin"
+    ],
+    "versionArguments": [
+      "--version"
+    ]
+  },
+  "install": {
+    "homebrew": "pandoc",
+    "website": "https://pandoc.org/installing.html"
+  },
+  "edges": [
+    {
+      "from": [
+        "html",
+        "docx",
+        "odt",
+        "epub"
+      ],
+      "to": [
+        "md"
+      ],
+      "arguments": [
+        "{input}",
+        "-o",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "md",
+        "docx",
+        "odt",
+        "epub"
+      ],
+      "to": [
+        "html"
+      ],
+      "arguments": [
+        "-s",
+        "{input}",
+        "-o",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "md",
+        "html",
+        "odt",
+        "epub"
+      ],
+      "to": [
+        "docx"
+      ],
+      "arguments": [
+        "{input}",
+        "-o",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "md",
+        "html",
+        "docx",
+        "epub"
+      ],
+      "to": [
+        "odt"
+      ],
+      "arguments": [
+        "{input}",
+        "-o",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "md",
+        "html",
+        "docx",
+        "odt"
+      ],
+      "to": [
+        "epub"
+      ],
+      "arguments": [
+        "{input}",
+        "-o",
+        "{output}"
+      ]
+    },
+    {
+      "from": [
+        "md",
+        "html",
+        "docx",
+        "odt",
+        "epub"
+      ],
+      "to": [
+        "txt"
+      ],
+      "arguments": [
+        "{input}",
+        "-t",
+        "plain",
+        "-o",
+        "{output}"
+      ]
+    }
+  ]
+}

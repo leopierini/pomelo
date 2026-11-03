@@ -1,0 +1,49 @@
+{
+  "id": "libreoffice",
+  "displayName": "LibreOffice",
+  "executable": {
+    "names": [
+      "soffice"
+    ],
+    "searchPaths": [
+      "/Applications/LibreOffice.app/Contents/MacOS"
+    ],
+    "versionArguments": [
+      "--version"
+    ]
+  },
+  "install": {
+    "homebrew": "--cask libreoffice",
+    "website": "https://www.libreoffice.org/download/"
+  },
+  "maxConcurrentJobs": 1,
+  "defaultCost": 60,
+  "edges": [
+    {
+      "from": [
+        "doc",
+        "docx",
+        "odt",
+        "rtf",
+        "ppt",
+        "pptx",
+        "odp",
+        "xls",
+        "xlsx",
+        "ods"
+      ],
+      "to": [
+        "pdf"
+      ],
+      "arguments": [
+        "-env:UserInstallation={tempDirURL}profile",
+        "--headless",
+        "--convert-to",
+        "pdf",
+        "--outdir",
+        "{outputDir}",
+        "{input}"
+      ]
+    }
+  ]
+}

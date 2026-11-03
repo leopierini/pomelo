@@ -1,0 +1,41 @@
+{
+  "id": "cwebp",
+  "displayName": "cwebp",
+  "executable": {
+    "names": [
+      "cwebp"
+    ],
+    "searchPaths": [
+      "/opt/homebrew/bin",
+      "/usr/local/bin"
+    ],
+    "versionArguments": [
+      "-version"
+    ]
+  },
+  "install": {
+    "homebrew": "webp",
+    "website": "https://developers.google.com/speed/webp/download"
+  },
+  "edges": [
+    {
+      "from": [
+        "png"
+      ],
+      "to": [
+        "webp"
+      ],
+      "flags": [
+        "lossy"
+      ],
+      "arguments": [
+        "-quiet",
+        "-q",
+        "{quality:80}",
+        "{input}",
+        "-o",
+        "{output}"
+      ]
+    }
+  ]
+}
