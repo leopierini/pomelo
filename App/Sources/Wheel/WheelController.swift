@@ -19,12 +19,18 @@ struct WheelDesktop {
     var watchesMouse = true
     /// Whether a click-mode panel is made key (it still may become key).
     var takesKey = true
+    /// Whether the app's activations reach the wheel (`appWillBecomeActive`, `appDidBecomeActive`).
+    var watchesActivation = true
+    /// The app in front when a drag's wheel opens, the drag's source.
+    var frontmostApp: @MainActor () -> pid_t? = { NSWorkspace.shared.frontmostApplication?.processIdentifier }
+    /// Gives the activation back to that app.
+    var activateApp: @MainActor (pid_t) -> Void = { _ = NSRunningApplication(processIdentifier: $0)?.activate() }
 
     static let live = WheelDesktop()
     /// Far outside every screen.
     static let offScreen = WheelDesktop(
         visibleFrame: { _ in CGRect(x: -30_000, y: -30_000, width: 1_000, height: 1_000) },
-        watchesMouse: false, takesKey: false
+        watchesMouse: false, takesKey: false, watchesActivation: false, frontmostApp: { nil }, activateApp: { _ in }
     )
 }
 
@@ -74,6 +80,8 @@ final class WheelController {
     /// Mouse monitors that close the wheel while it waits or shows an outcome: on a click elsewhere, or (an
     /// outcome) when the mouse moves well away.
     private var dismissMonitors: [Any] = []
+    /// From a drag's wheel opening until its mouse-up: the app the drag came from (usually Finder).
+    private var dragSourceApp: pid_t?
 
     static let signposter = OSSignposter(subsystem: "io.github.pomelo-app.Pomelo", category: "wheel")
     private static let log = Logger(subsystem: "io.github.pomelo-app.Pomelo", category: "wheel")
@@ -107,6 +115,37 @@ final class WheelController {
         self.readabilityCheck = readabilityCheck
         model.onHoverChange = { [weak self] index in self?.hoverChanged(to: index) }
         model.onActivatePrompt = { [weak self] in self?.activatePrompt() }
+        if desktop.watchesActivation { observeActivation() }
+    }
+
+    /// For the app's lifetime, like the controller itself: never removed.
+    private func observeActivation() {
+        let center = NotificationCenter.default
+        _ = center.addObserver(forName: NSApplication.willBecomeActiveNotification, object: nil,
+                               queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.appWillBecomeActive() }
+        }
+        _ = center.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil,
+                               queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.appDidBecomeActive() }
+        }
+    }
+
+    /// A drag resting on the wheel makes the system activate Pomelo and make the panel key (AppKit logs that the
+    /// panel refused); an open Settings window then came in front of Finder, as the last key window. While the drag
+    /// lasts the panel takes the key itself. Internal so the tests can drive it.
+    func appWillBecomeActive() {
+        guard dragSourceApp != nil, panel.isVisible else { return }
+        panel.allowsKey = true
+    }
+
+    /// Gives that activation back to the drag's source, so its windows stay in front and keep the keyboard.
+    func appDidBecomeActive() {
+        guard panel.isVisible, !model.clickMode else { return }
+        panel.allowsKey = false
+        guard let app = dragSourceApp else { return }
+        Self.log.notice("a drag on the wheel activated Pomelo: handing activation back to pid \(app, privacy: .public)")
+        desktop.activateApp(app)
     }
 
     /// Creates the panel ahead of the first open, so that open only has to place and show it.
@@ -140,6 +179,9 @@ final class WheelController {
         model.trigger = settings.settings.trigger
         model.load(pages: pages, files: files, builder: contentBuilder, firstPage: settings.settings.firstPage)
         navigator = clickMode ? WheelNavigator(pages: pages, pageIndex: model.pageIndex, selected: nil) : nil
+        dragSourceApp = clickMode ? nil : desktop.frontmostApp().flatMap {
+            $0 == ProcessInfo.processInfo.processIdentifier ? nil : $0
+        }
         loadThumbnail(for: files[0])
         show(at: screenPoint, clickMode: clickMode)
         checkReadability(of: files)
@@ -187,6 +229,8 @@ final class WheelController {
     /// The mouse button went up: the wheel stays briefly (so a drop can land and be seen), then closes. After a drop
     /// on a conversion or an engine tool the wait for the job decides instead.
     func dragEnded() {
+        // From the mouse-up on, an activation is the user's own (a click on Settings while a failure stays, P191).
+        dragSourceApp = nil
         guard isOpen, model.phase == .choosing else { return }
         pendingClose?.cancel()
         pendingClose = Task { [weak self, clock] in
@@ -237,6 +281,7 @@ final class WheelController {
         readabilityTask?.cancel()
         readabilityTask = nil
         endFollowUp()
+        dragSourceApp = nil
         // Cleared first: ordering out resigns key, which in click mode would close again.
         model.clickMode = false
         panel.dropTarget.clickMode = false
