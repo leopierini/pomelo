@@ -231,13 +231,8 @@ enum AccessibilityEval {
     @MainActor
     private static func auditOnboarding(environment: AppEnvironment,
                                         audit: (String, NSAccessibilityElementProtocol) -> Void) async {
-        // A private folder, as the snapshot uses, so the audit never touches a real practice run.
-        let folder = PracticeFolder(directory: FileManager.default.temporaryDirectory
-            .appendingPathComponent("Pomelo Audit \(UUID().uuidString)", isDirectory: true))
-        defer { try? FileManager.default.removeItem(at: folder.directory) }
-        await environment.rebuildWheelContent()
-        let model = OnboardingModel(trigger: environment.settingsStore.settings.trigger, folder: folder,
-                                    wheelContent: { environment.contentBuilder })
+        let model = await OnboardingModel.scratch(environment: environment, named: "Pomelo Audit")
+        defer { try? FileManager.default.removeItem(at: model.folder.directory) }
         for page in OnboardingPage.allCases {
             model.show(page)
             let view = OnboardingView(model: model, settingsNavigation: SettingsNavigation()) {}
@@ -281,4 +276,18 @@ enum AccessibilityEval {
         window.orderOut(nil)
     }
 }
+
+extension OnboardingModel {
+    /// The welcome over a private practice folder, for the audit and the snapshot, so neither ever touches a real
+    /// practice run. The caller removes `folder`.
+    @MainActor
+    static func scratch(environment: AppEnvironment, named name: String) async -> OnboardingModel {
+        let folder = PracticeFolder(directory: FileManager.default.temporaryDirectory
+            .appendingPathComponent("\(name) \(UUID().uuidString)", isDirectory: true))
+        await environment.rebuildWheelContent()
+        return OnboardingModel(trigger: environment.settingsStore.settings.trigger, folder: folder,
+                               wheelContent: { environment.contentBuilder })
+    }
+}
+
 #endif

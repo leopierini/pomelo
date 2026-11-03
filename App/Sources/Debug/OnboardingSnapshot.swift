@@ -40,15 +40,10 @@ enum OnboardingSnapshot {
         let appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
         NSApp.appearance = appearance
         NSApp.setActivationPolicy(.accessory)
-        // A private folder, so a snapshot never touches a real practice run.
-        let folder = PracticeFolder(directory: FileManager.default.temporaryDirectory
-            .appendingPathComponent("Pomelo Snapshot \(UUID().uuidString)", isDirectory: true))
-        defer { try? FileManager.default.removeItem(at: folder.directory) }
-        await environment.rebuildWheelContent()
-        let model = OnboardingModel(trigger: environment.settingsStore.settings.trigger, folder: folder,
-                                    wheelContent: { environment.contentBuilder })
+        let model = await OnboardingModel.scratch(environment: environment, named: "Pomelo Snapshot")
+        defer { try? FileManager.default.removeItem(at: model.folder.directory) }
         if state == "converted" {
-            try? Data("png".utf8).write(to: folder.outputURL)
+            try? Data("png".utf8).write(to: model.folder.outputURL)
             model.refreshConverted()
         }
         if state == "held" { model.simulateTriggerHeld() }
