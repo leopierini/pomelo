@@ -29,8 +29,8 @@ xcodebuild -project App/Pomelo.xcodeproj -scheme Pomelo -configuration Debug \
   -derivedDataPath ~/Library/Caches/Pomelo-build/xcode build    # `test` runs the app tests
 ```
 
-Building needs Xcode 26.4 or later: Translation answers an app linked against an older SDK as if no language were
-installed.
+Building needs Xcode 27 or later: Xcode 26's compiler hangs on the package. (Translation also needs an app linked
+against SDK 26.4 or later, or it answers as if no language were installed.)
 
 The tests never touch your real state: they use in-memory defaults, a private pasteboard, temporary folders and
 off-screen windows, and stub the external engines that aren't installed.

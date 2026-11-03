@@ -64,8 +64,7 @@ struct SystemLanguageModeling: LanguageModeling {
     /// `GenerationError` it deprecates. Never carries the text.
     static func failure(for error: any Error) -> any Error {
         if error is CancellationError || Task.isCancelled { return CancellationError() }
-        // The macOS 27 SDK (Xcode 27, Swift 6.4) declares these types: an older Xcode still builds, with only the
-        // macOS 26 errors below.
+        // Only the macOS 27 SDK (Xcode 27, Swift 6.4) declares these types.
         #if compiler(>=6.4)
         if #available(macOS 27, *) {
             if let error = error as? LanguageModelError {

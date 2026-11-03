@@ -169,7 +169,7 @@ Every subcommand takes `--json`; the schema and exit codes are in [docs/cli-json
 
 ## Build from source
 
-You need Xcode 26.4 or later and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`).
+You need Xcode 27 or later and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`).
 
 ```sh
 git clone https://github.com/leopierini/pomelo.git && cd pomelo
