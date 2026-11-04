@@ -120,30 +120,17 @@ final class WheelController {
 
     /// For the app's lifetime, like the controller itself: never removed.
     private func observeActivation() {
-        let center = NotificationCenter.default
-        _ = center.addObserver(forName: NSApplication.willBecomeActiveNotification, object: nil,
-                               queue: .main) { [weak self] _ in
-            MainActor.assumeIsolated { self?.appWillBecomeActive() }
-        }
-        _ = center.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil,
-                               queue: .main) { [weak self] _ in
+        _ = NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
+        ) { [weak self] _ in
             MainActor.assumeIsolated { self?.appDidBecomeActive() }
         }
     }
 
-    /// A drag resting on the wheel makes the system activate Pomelo and make the panel key (AppKit logs that the
-    /// panel refused); an open Settings window then came in front of Finder, as the last key window. While the drag
-    /// lasts the panel takes the key itself. Internal so the tests can drive it.
-    func appWillBecomeActive() {
-        guard dragSourceApp != nil, panel.isVisible else { return }
-        panel.allowsKey = true
-    }
-
-    /// Gives that activation back to the drag's source, so its windows stay in front and keep the keyboard.
+    /// A drag resting on the wheel makes the system activate Pomelo (see `show`); this gives that activation back
+    /// to the drag's source, so its windows stay in front and keep the keyboard. Internal so the tests can drive it.
     func appDidBecomeActive() {
-        guard panel.isVisible, !model.clickMode else { return }
-        panel.allowsKey = false
-        guard let app = dragSourceApp else { return }
+        guard panel.isVisible, let app = dragSourceApp else { return }
         Self.log.notice("a drag on the wheel activated Pomelo: handing activation back to pid \(app, privacy: .public)")
         desktop.activateApp(app)
     }
@@ -231,6 +218,7 @@ final class WheelController {
     func dragEnded() {
         // From the mouse-up on, an activation is the user's own (a click on Settings while a failure stays, P191).
         dragSourceApp = nil
+        if !model.clickMode { panel.allowsKey = false }
         guard isOpen, model.phase == .choosing else { return }
         pendingClose?.cancel()
         pendingClose = Task { [weak self, clock] in
@@ -339,7 +327,10 @@ final class WheelController {
     /// Places the panel centred on `screenPoint`, clamped inside the visible frame of the screen under it, and shows
     /// it; in click mode it becomes key.
     private func show(at screenPoint: CGPoint, clickMode: Bool) {
-        panel.allowsKey = clickMode
+        // A drag resting on the wheel makes the system make the panel key and only then activate Pomelo; a panel
+        // refusing the key left Pomelo's last key window (Settings) to come in front of Finder. So it accepts from
+        // the drag's open until its mouse-up, and the activation goes back to the drag's source.
+        panel.allowsKey = clickMode || dragSourceApp != nil
         panel.dropTarget.clickMode = clickMode
         let visibleFrame = desktop.visibleFrame?(screenPoint) ?? {
             let screen = NSScreen.screens.first { NSMouseInRect(screenPoint, $0.frame, false) } ?? NSScreen.main

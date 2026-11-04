@@ -5,9 +5,9 @@ import PomeloUIModel
 import Testing
 @testable import Pomelo
 
-/// A drag that rests on the wheel makes the system activate Pomelo (it tries to make the panel key), which brought
-/// the Settings window in front of Finder and took Finder's focus. While the drag lasts the wheel takes that
-/// activation itself and gives it back to the app the drag came from.
+/// A drag that rests on the wheel makes the system make the panel key and then activate Pomelo. A panel refusing the
+/// key brought the Settings window in front of Finder and took Finder's focus. While the drag lasts the panel accepts
+/// the key, and the activation goes back to the app the drag came from.
 @MainActor
 @Suite(.serialized) struct WheelActivationTests {
     private let png = URL(fileURLWithPath: "/tmp/pomelo-activation-test-a.png")
@@ -31,19 +31,18 @@ import Testing
         return wheel
     }
 
-    @Test func aDragsWheelTakesTheActivationAndGivesItBackToTheDragsSource() {
+    @Test func aDragsWheelAcceptsTheKeyBeforeAnyActivationAndGivesTheActivationBack() {
         let activations = Activations()
         let wheel = makeWheel(activations)
         defer { wheel.close() }
         wheel.open(files: [png], at: NSEvent.mouseLocation, clickMode: false)
-        #expect(!wheel.panel.canBecomeKey)
-
-        wheel.appWillBecomeActive()
-        // The system makes the panel key rather than Pomelo's last key window (Settings).
+        // The system makes the panel key before Pomelo is active, so it must already accept.
         #expect(wheel.panel.canBecomeKey)
+
         wheel.appDidBecomeActive()
         #expect(activations.handedTo == [Self.finder])
-        #expect(!wheel.panel.canBecomeKey)
+        // A second rest during the same drag is handled the same way.
+        #expect(wheel.panel.canBecomeKey)
         #expect(wheel.isOpen)
     }
 
@@ -54,9 +53,8 @@ import Testing
         wheel.open(files: [png], at: NSEvent.mouseLocation, clickMode: false)
         // A failure stays on the wheel until dismissed (P191): a click on Settings meanwhile activates Pomelo.
         wheel.dragEnded()
-
-        wheel.appWillBecomeActive()
         #expect(!wheel.panel.canBecomeKey)
+
         wheel.appDidBecomeActive()
         #expect(activations.handedTo.isEmpty)
     }
@@ -66,13 +64,12 @@ import Testing
         let wheel = makeWheel(activations)
         defer { wheel.close() }
         wheel.open(files: [png], at: NSEvent.mouseLocation, clickMode: true)
-        wheel.appWillBecomeActive()
         wheel.appDidBecomeActive()
         #expect(wheel.panel.canBecomeKey)
 
         wheel.open(files: [png], at: NSEvent.mouseLocation, clickMode: false)
         wheel.close()
-        wheel.appWillBecomeActive()
+        #expect(!wheel.panel.canBecomeKey)
         wheel.appDidBecomeActive()
         #expect(activations.handedTo.isEmpty)
     }
@@ -82,9 +79,8 @@ import Testing
         let wheel = makeWheel(frontmost: ProcessInfo.processInfo.processIdentifier, activations)
         defer { wheel.close() }
         wheel.open(files: [png], at: NSEvent.mouseLocation, clickMode: false)
-        wheel.appWillBecomeActive()
+        #expect(!wheel.panel.canBecomeKey)
         wheel.appDidBecomeActive()
         #expect(activations.handedTo.isEmpty)
-        #expect(!wheel.panel.canBecomeKey)
     }
 }

@@ -9,7 +9,8 @@ import SwiftUI
 final class WheelPanel: NSPanel {
     static let size = WheelView.panelSize
 
-    /// Click mode only: the panel may become key, to track the mouse and receive keys.
+    /// In click mode the panel becomes key, to track the mouse and receive keys; during a drag it only accepts the key
+    /// the system gives it (`WheelController.show`).
     var allowsKey = false
     /// Called when the panel stops being key (a click elsewhere in click mode).
     var onResignKey: (() -> Void)?
