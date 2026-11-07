@@ -38,6 +38,9 @@ public enum RedactionCheck {
         "{TIFF}": ["Compression", "Orientation", "PhotometricInterpretation", "ResolutionUnit", "TileLength", "TileWidth"],
         "{JFIF}": ["DensityUnit", "JFIFVersion", "XDensity", "YDensity"],
         "{PNG}": ["Chromaticities", "Gamma", "InterlaceType", "sRGBIntent"],
+        // macOS 27.2's ImageIO writes these two light levels into every HEIC, a bare image's too (203 and 64 for any
+        // content, probed 2026-11-08): two numbers, never a source's data.
+        "ContentLightLevelInfo": ["MaxContentLightLevel", "MaxPicAverageLightLevel"],
     ]
 
     private static let tags: Set<String> = [
@@ -49,7 +52,7 @@ public enum RedactionCheck {
 
     // MARK: Checks
 
-    private static func verifyProperties(_ properties: [String: Any]) throws {
+    static func verifyProperties(_ properties: [String: Any]) throws {
         for (key, value) in properties {
             if let allowed = dictionaries[key] {
                 let inner = value as? [String: Any] ?? [:]
@@ -58,6 +61,9 @@ public enum RedactionCheck {
                 }
                 if key == "{TIFF}", let orientation = inner["Orientation"], !isUpright(orientation) {
                     throw Leak(reason: "it carries an orientation tag")
+                }
+                if key == "ContentLightLevelInfo", inner.values.contains(where: { !($0 is NSNumber) }) {
+                    throw Leak(reason: "it carries \(key)")
                 }
             } else if scalarProperties.contains(key) {
                 if key == "Orientation", !isUpright(value) { throw Leak(reason: "it carries an orientation tag") }

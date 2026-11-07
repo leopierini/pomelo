@@ -55,6 +55,20 @@ private func writeImage(
         }
     }
 
+    /// macOS 27.2 writes two light levels into every HEIC: they pass as numbers, and nothing else rides along.
+    @Test func theLightLevelsPassOnlyAsTwoNumbers() throws {
+        let levels: [String: Any] = ["MaxContentLightLevel": 203, "MaxPicAverageLightLevel": 64]
+        try RedactionCheck.verifyProperties(["ContentLightLevelInfo": levels])
+        var extra = levels
+        extra["Note"] = 1
+        #expect(throws: RedactionCheck.Leak(reason: "it carries ContentLightLevelInfo Note")) {
+            try RedactionCheck.verifyProperties(["ContentLightLevelInfo": extra])
+        }
+        #expect(throws: RedactionCheck.Leak(reason: "it carries ContentLightLevelInfo")) {
+            try RedactionCheck.verifyProperties(["ContentLightLevelInfo": ["MaxContentLightLevel": "secret"]])
+        }
+    }
+
     @Test func aTagOutsideTheEncodersOwnIsRejected() throws {
         let dir = try makeTempDir()
         defer { try? FileManager.default.removeItem(at: dir) }
