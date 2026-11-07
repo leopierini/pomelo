@@ -10,7 +10,7 @@ extension ImageIOEngine {
 
     /// Formats Redact writes (P27). gif and avif are left out until ruled on: `RedactionCheck` refuses what their bare
     /// encoders write (gif's {GIF} frame timing; an AVIF answers the HEIC thumbnail probe with its own picture), and
-    /// its allowlist is never widened to let a redaction pass (P70).
+    /// its allowlist is never widened beyond what ImageIO writes for a bare image (P70, P274).
     static let redactFormats: Set<FormatID> = ["jpg", "png", "heic", "tiff", "bmp"]
     static let redactLossyFormats: Set<FormatID> = ["jpg", "heic", "avif"]
 

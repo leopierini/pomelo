@@ -237,16 +237,17 @@ public actor JobRunner {
         case .fromSource: (OutputNamer.stem(of: source), request.nameSuffix)
         case .fromOutput: (OutputNamer.stem(of: current), String?.none)
         }
-        // Only a version of the source published next to it may take its place (§3.4 rule 8, P273: the same kind of
-        // file, so HEIC → JPG replaces and a video's audio never does). Trashing a symlink would leave its target in
-        // place (P47); a produced name is not a version of the source (P48).
+        // Only a version of the source published next to it may take its place (§3.4 rule 8, P273, P275: HEIC → JPG
+        // replaces; a video's audio, a flattened PSD or one frame of an animated GIF never does). Trashing a symlink
+        // would leave its target in place (P47); a produced name is not a version of the source (P48).
         let isSymlink = (try? source.resourceValues(forKeys: [.isSymbolicLinkKey]))?.isSymbolicLink == true
         let outputFormat = formats.format(forExtension: ext)
-        let sourceCategory = formats.format(id: plan.sourceFormat)?.category
+        let sourceFormat = formats.format(id: plan.sourceFormat)
         let replaces = request.replaceOriginal && plan.note == nil && isRegularFile && !isSymlink
             && request.outputNaming == .fromSource
-            && outputFormat != nil && sourceCategory != .other && outputFormat?.category == sourceCategory
             && Self.isSameFolder(plan.folder, source.deletingLastPathComponent())
+            && sourceFormat.flatMap { from in outputFormat.map { ReplacePolicy.allows(from: from, to: $0) } } == true
+            && !(sourceFormat?.category == .image && ReplacePolicy.holdsSeveralImages(source))
         // A same-format result takes the source's exact name; another format keeps the source's name with its own
         // extension (Lake.heic → Lake.jpg).
         let replacementName = outputFormat?.id == plan.sourceFormat
@@ -427,6 +428,13 @@ public actor JobRunner {
         )
         reservedNames[job, default: []].insert(published.lastPathComponent.lowercased())
         guard let (original, name) = replacing else { return (published, false) }
+        // A new name already taken (IMG_0001.HEIC beside an unrelated IMG_0001.JPG) would leave the result looking
+        // like a copy of that file: the source stays (P275).
+        var taken = stat()
+        if name.path != original.path, published.path != name.path,
+           lstat(name.path, &taken) == 0 || reservedNames[job]?.contains(name.lastPathComponent.lowercased()) == true {
+            return (published, false)
+        }
 
         // The source is trashed only once its replacement is published: if the Trash refuses, both stay.
         do { try trashItem(original) } catch { return (published, false) }

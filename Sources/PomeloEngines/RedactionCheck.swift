@@ -55,7 +55,7 @@ public enum RedactionCheck {
     static func verifyProperties(_ properties: [String: Any]) throws {
         for (key, value) in properties {
             if let allowed = dictionaries[key] {
-                let inner = value as? [String: Any] ?? [:]
+                guard let inner = value as? [String: Any] else { throw Leak(reason: "it carries \(key)") }
                 if let extra = inner.keys.sorted().first(where: { !allowed.contains($0) }) {
                     throw Leak(reason: "it carries \(key) \(extra)")
                 }

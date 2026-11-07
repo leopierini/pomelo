@@ -1,4 +1,6 @@
+import CoreGraphics
 import Foundation
+import ImageIO
 import os
 import Testing
 import PomeloTestSupport
@@ -799,8 +801,8 @@ private func makeRTFDPackage(_ stem: String, in dir: URL) throws -> URL {
         #expect(try contents(of: dir) == ["Puppy.png"])
     }
 
-    /// The source's name in the new format is already taken: the result keeps the name it was published under.
-    @Test func replaceAcrossFormatsKeepsItsNameWhenTheTargetNameIsTaken() async throws {
+    /// The source's name in the new format is already taken by another file: the source stays (P275).
+    @Test func replaceAcrossFormatsKeepsTheSourceWhenTheNewNameIsTaken() async throws {
         let dir = try makeTempDir(); defer { try? FileManager.default.removeItem(at: dir) }
         let trashFolder = try makeTempDir(); defer { try? FileManager.default.removeItem(at: trashFolder) }
         let trash = TestTrash(folder: trashFolder)
@@ -811,11 +813,87 @@ private func makeRTFDPackage(_ stem: String, in dir: URL) throws -> URL {
         request.replaceOriginal = true
 
         let results = await runner.run(request)
-        guard case .succeeded(_, let outputs, .replacedOriginal) = results.first else { Issue.record("\(results)"); return }
+        guard case .succeeded(_, let outputs, nil) = results.first else { Issue.record("\(results)"); return }
         #expect(outputs.map(\.lastPathComponent) == ["Puppy-cutout.png"])
-        #expect(trash.items == [source])
+        #expect(trash.items.isEmpty)
         #expect(try String(contentsOf: existing, encoding: .utf8) == "data of Puppy.png")
-        #expect(try contents(of: dir) == ["Puppy-cutout.png", "Puppy.png"])
+        #expect(try contents(of: dir) == ["Puppy-cutout.png", "Puppy.jpg", "Puppy.png"])
+    }
+
+    /// Two sources of one name in a batch: the first result takes the name and replaces its source, the second
+    /// keeps its own name and its source (P275).
+    @Test func twoSourcesOfOneNameReplaceOnlyOnce() async throws {
+        let dir = try makeTempDir(); defer { try? FileManager.default.removeItem(at: dir) }
+        let trashFolder = try makeTempDir(); defer { try? FileManager.default.removeItem(at: trashFolder) }
+        let trash = TestTrash(folder: trashFolder)
+        let heic = write("a.heic", in: dir)
+        let png = write("a.png", in: dir)
+        let runner = makeRunner(
+            engines: [FakeEngine(id: "x", edges: [edge("heic", "jpg", "x"), edge("png", "jpg", "x")])],
+            trashItem: trash.trash
+        )
+        var request = ConversionRequest(inputs: [heic, png], target: "jpg")
+        request.replaceOriginal = true
+
+        let results = await runner.run(request)
+        let replaced = results.filter { if case .succeeded(_, _, .replacedOriginal) = $0 { true } else { false } }
+        #expect(replaced.count == 1)
+        #expect(trash.items.count == 1)
+        #expect(try contents(of: dir).count == 3)
+        #expect(try contents(of: dir).contains("a.jpg"))
+    }
+
+    /// P275: a format change never replaces a layered, vector or multi-track source, nor a document.
+    @Test func replaceNeverAppliesToARichSourceOrADocument() async throws {
+        for (name, from, to) in [("art.psd", "psd", "png"), ("logo.svg", "svg", "png"), ("film.mkv", "mkv", "mp4"),
+                                 ("notes.docx", "docx", "md"), ("sheet.xlsx", "xlsx", "csv")] as [(String, FormatID, FormatID)] {
+            let dir = try makeTempDir(); defer { try? FileManager.default.removeItem(at: dir) }
+            let trashFolder = try makeTempDir(); defer { try? FileManager.default.removeItem(at: trashFolder) }
+            let trash = TestTrash(folder: trashFolder)
+            let source = write(name, in: dir)
+            let runner = makeRunner(engines: [FakeEngine(id: "x", edges: [edge(from, to, "x")])], trashItem: trash.trash)
+            var request = ConversionRequest(inputs: [source], target: to)
+            request.replaceOriginal = true
+
+            let results = await runner.run(request)
+            guard case .succeeded(_, _, nil) = results.first else { Issue.record("\(name): \(results)"); continue }
+            #expect(trash.items.isEmpty, "\(name)")
+        }
+    }
+
+    /// P275: an image holding several frames or pages keeps them all only in itself: never replaced, whatever the tool.
+    @Test func replaceNeverAppliesToAnImageWithSeveralFrames() async throws {
+        let dir = try makeTempDir(); defer { try? FileManager.default.removeItem(at: dir) }
+        let trashFolder = try makeTempDir(); defer { try? FileManager.default.removeItem(at: trashFolder) }
+        let trash = TestTrash(folder: trashFolder)
+        let source = dir.appending(path: "scan.tiff", directoryHint: .notDirectory)
+        try writeTwoPageTIFF(to: source)
+        let runner = makeRunner(
+            engines: [FakeEngine(id: "x", edges: [edge("tiff", "jpg", "x"), edge("tiff", "tiff", "x")])],
+            trashItem: trash.trash
+        )
+        var convert = ConversionRequest(inputs: [source], target: "jpg")
+        convert.replaceOriginal = true
+        var tool = ConversionRequest(inputs: [source], target: nil, nameSuffix: "compressed")
+        tool.replaceOriginal = true
+
+        for request in [convert, tool] {
+            let results = await runner.run(request)
+            guard case .succeeded(_, _, nil) = results.first else { Issue.record("\(results)"); return }
+        }
+        #expect(trash.items.isEmpty)
+        #expect(ReplacePolicy.holdsSeveralImages(source))
+    }
+
+    private func writeTwoPageTIFF(to url: URL) throws {
+        let context = try #require(CGContext(data: nil, width: 4, height: 4, bitsPerComponent: 8, bytesPerRow: 0,
+                                             space: CGColorSpaceCreateDeviceRGB(),
+                                             bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue))
+        let image = try #require(context.makeImage())
+        let destination = try #require(CGImageDestinationCreateWithURL(url as CFURL, "public.tiff" as CFString, 2, nil))
+        CGImageDestinationAddImage(destination, image, nil)
+        CGImageDestinationAddImage(destination, image, nil)
+        try #require(CGImageDestinationFinalize(destination))
     }
 
     /// A video's audio is another kind of file: the video stays (P273).

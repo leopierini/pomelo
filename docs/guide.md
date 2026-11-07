@@ -54,8 +54,9 @@ Summarize and Extract data use Apple's on-device model. Nothing leaves your Mac.
 **Settings › Tools** sets each tool's options: quality, size, speed, the language of a transcription or translation,
 and more. **Replace the original** (off by default) moves an original to the Trash once its result is in place, and
 the result takes its name: after a conversion that keeps the kind of file (HEIC to JPG, MOV to MP4), an editor (Crop,
-Trim, Resize…) or a tool (Compress, Remove background…). It never applies when the kind changes (a video's audio, a
-transcript), to a merge, or when there are several results.
+Trim, Resize…) or a tool (Compress, Remove background…). It never applies when part of the file would be lost (a
+video's audio, a transcript, a PSD's layers, an animated GIF's frames, a document's export), when the new name is
+already taken, to a merge, or when there are several results.
 
 ## Your own wheel
 

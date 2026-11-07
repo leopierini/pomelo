@@ -15,8 +15,8 @@ struct ToolsPane: View {
     static let originalsFooter = """
         The result takes the original's place and the original goes to the Trash: after a conversion that keeps \
         the kind of file (HEIC to JPG, MOV to MP4), an editor (Crop, Trim, Resize, \u{2026}) or a tool (Compress, \
-        Remove background, \u{2026}). Never when the kind changes (Extract audio, Transcribe), for a merge, or when \
-        there are several results.
+        Remove background, \u{2026}). Never when part of the file would be lost (a video's audio, a PSD's layers, an \
+        animated GIF's frames, a document's export), for a merge, or when there are several results.
         """
     static let translationNote = """
         Translate writes into languages downloaded on this Mac. Download others in System Settings, General, \

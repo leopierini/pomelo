@@ -477,10 +477,10 @@ public struct WheelContentBuilder: Sendable {
         if converted.isEmpty {
             return HubPreview(title: slice.title, subtitle: slice.disabledReason, warning: warning)
         }
-        // As the runner decides (P273): a conversion that keeps the kind of file replaces its source.
-        let targetCategory = formats.format(id: target)?.category
-        if replacesOriginals, slice.isEnabled, targetCategory != nil, targetCategory != .other,
-           converted.contains(where: { formats.format(for: $0)?.category == targetCategory }) {
+        // As the runner decides (P273, P275); it alone reads the file (an animated GIF stays), so the hub may warn
+        // for a file that is then kept, never the other way round.
+        if replacesOriginals, slice.isEnabled, let result = formats.format(id: target),
+           converted.contains(where: { formats.format(for: $0).map { ReplacePolicy.allows(from: $0, to: result) } == true }) {
             warning = Self.replaceWarning
         }
         let ext = formats.format(id: target)?.extensions.first ?? target.rawValue

@@ -67,6 +67,9 @@ private func writeImage(
         #expect(throws: RedactionCheck.Leak(reason: "it carries ContentLightLevelInfo")) {
             try RedactionCheck.verifyProperties(["ContentLightLevelInfo": ["MaxContentLightLevel": "secret"]])
         }
+        #expect(throws: RedactionCheck.Leak(reason: "it carries {Exif}")) {
+            try RedactionCheck.verifyProperties(["{Exif}": "not a dictionary"])
+        }
     }
 
     @Test func aTagOutsideTheEncodersOwnIsRejected() throws {
