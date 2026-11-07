@@ -6,8 +6,8 @@ options:
 settings:
   base:
     # One version for the app and its extension: an embedded extension must carry its app's version.
-    MARKETING_VERSION: 0.1.1
-    CURRENT_PROJECT_VERSION: 2
+    MARKETING_VERSION: 0.1.2
+    CURRENT_PROJECT_VERSION: 3
     # evals/run.sh gives its build its own identity (P45); the extension's must start with the app's.
     POMELO_BUNDLE_IDENTIFIER: io.github.pomelo-app.Pomelo
 packages:
