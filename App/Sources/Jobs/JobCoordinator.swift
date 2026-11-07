@@ -126,8 +126,11 @@ final class JobCoordinator: ObservableObject {
         case .convert(let target):
             let inputs = filesToConvert(files, to: target)
             let verb = contentBuilder?.conversionVerb(for: inputs, to: target) ?? "Converting"
-            return start(ConversionRequest(inputs: inputs, target: target), verb: verb, finderVerb: "Converting",
-                         symbol: slice.symbol, place, onResult: onResult)
+            var request = ConversionRequest(inputs: inputs, target: target)
+            // The runner replaces only a result of the source's kind (P273).
+            request.replaceOriginal = settings.settings.replaceOriginal
+            return start(request, verb: verb, finderVerb: "Converting", symbol: slice.symbol, place,
+                         onResult: onResult)
         case .preset(let id):
             guard let preset = contentBuilder?.tool(id: id) else {
                 return unknownTool(slice, on: files, place)
@@ -197,7 +200,7 @@ final class JobCoordinator: ObservableObject {
     }
 
     /// A combine takes its inputs by name, as Finder sorts them, whatever order they were dragged in. Replace-original
-    /// is the user's setting, and only for the tools that keep the file's format.
+    /// is the user's setting, and only for the tools that make one file of the source's kind (P273).
     private func toolRequest(for preset: Preset, on files: [URL]) -> ConversionRequest {
         let inputs = preset.combinesInputs
             ? files.sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }

@@ -907,6 +907,22 @@ private let fileToolsOfASparseKind = ["action.makeZip"] + fileToolsOfAnArchive
         #expect(off.preview(for: compress, files: files).warning == nil)
     }
 
+    /// P273: editors and conversions that keep the kind of file warn too; a conversion to another kind doesn't.
+    @Test func editorAndSameKindConversionPreviewsWarnWhenTheyReplace() {
+        let image = [url("/a.heic")]
+        let b = builder(availableEdges: everyToolEdges + ["heic>jpg", "heic>pdf"],
+                        replacesOriginals: true)
+        let crop = WheelSlice(id: "editor.crop", title: "Crop\u{2026}", symbol: "crop", kind: .editor(id: "crop"))
+        let jpg = WheelSlice(id: "convert.jpg", title: "JPG", symbol: "photo", kind: .convert("jpg"))
+        let pdf = WheelSlice(id: "convert.pdf", title: "PDF", symbol: "doc", kind: .convert("pdf"))
+        #expect(b.preview(for: crop, files: image).warning == "Replaces the original")
+        #expect(b.preview(for: jpg, files: image).warning == "Replaces the original")
+        #expect(b.preview(for: pdf, files: image).warning == nil)
+        let off = builder(availableEdges: everyToolEdges + ["heic>jpg"])
+        #expect(off.preview(for: crop, files: image).warning == nil)
+        #expect(off.preview(for: jpg, files: image).warning == nil)
+    }
+
     @Test func toolLookupUsesTheConfiguredOptions() {
         var settings = AppSettings()
         settings.toolOptions["compress"] = PresetOptions(quality: 0.55)

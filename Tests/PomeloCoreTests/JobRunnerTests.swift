@@ -766,7 +766,60 @@ private func makeRTFDPackage(_ stem: String, in dir: URL) throws -> URL {
         #expect(try String(contentsOf: trashFolder.appending(path: "a.jpg"), encoding: .utf8) == "data of a.jpg")
     }
 
-    @Test func replaceNeverAppliesAcrossFormats() async throws {
+    /// P273: a result of the source's kind in another format takes the source's name with its own extension.
+    @Test func replaceAcrossFormatsOfOneKindKeepsTheSourcesName() async throws {
+        let dir = try makeTempDir(); defer { try? FileManager.default.removeItem(at: dir) }
+        let trashFolder = try makeTempDir(); defer { try? FileManager.default.removeItem(at: trashFolder) }
+        let trash = TestTrash(folder: trashFolder)
+        let source = write("Lake.heic", in: dir)
+        let runner = makeRunner(engines: [FakeEngine(id: "x", edges: [edge("heic", "jpg", "x")])], trashItem: trash.trash)
+        var request = ConversionRequest(inputs: [source], target: "jpg")
+        request.replaceOriginal = true
+
+        let results = await runner.run(request)
+        let expected = dir.appending(path: "Lake.jpg", directoryHint: .notDirectory)
+        #expect(results == [.succeeded(source: source, outputs: [expected], note: .replacedOriginal)])
+        #expect(trash.items == [source])
+        #expect(try contents(of: dir) == ["Lake.jpg"])
+    }
+
+    /// A suffixed tool result in another format (a cutout PNG of a JPEG) drops its suffix when it replaces.
+    @Test func replaceDropsTheSuffixAcrossFormats() async throws {
+        let dir = try makeTempDir(); defer { try? FileManager.default.removeItem(at: dir) }
+        let trashFolder = try makeTempDir(); defer { try? FileManager.default.removeItem(at: trashFolder) }
+        let trash = TestTrash(folder: trashFolder)
+        let source = write("Puppy.jpg", in: dir)
+        let runner = makeRunner(engines: [FakeEngine(id: "x", edges: [edge("jpg", "png", "x")])], trashItem: trash.trash)
+        var request = ConversionRequest(inputs: [source], target: "png", nameSuffix: "cutout")
+        request.replaceOriginal = true
+
+        let results = await runner.run(request)
+        let expected = dir.appending(path: "Puppy.png", directoryHint: .notDirectory)
+        #expect(results == [.succeeded(source: source, outputs: [expected], note: .replacedOriginal)])
+        #expect(try contents(of: dir) == ["Puppy.png"])
+    }
+
+    /// The source's name in the new format is already taken: the result keeps the name it was published under.
+    @Test func replaceAcrossFormatsKeepsItsNameWhenTheTargetNameIsTaken() async throws {
+        let dir = try makeTempDir(); defer { try? FileManager.default.removeItem(at: dir) }
+        let trashFolder = try makeTempDir(); defer { try? FileManager.default.removeItem(at: trashFolder) }
+        let trash = TestTrash(folder: trashFolder)
+        let source = write("Puppy.jpg", in: dir)
+        let existing = write("Puppy.png", in: dir)
+        let runner = makeRunner(engines: [FakeEngine(id: "x", edges: [edge("jpg", "png", "x")])], trashItem: trash.trash)
+        var request = ConversionRequest(inputs: [source], target: "png", nameSuffix: "cutout")
+        request.replaceOriginal = true
+
+        let results = await runner.run(request)
+        guard case .succeeded(_, let outputs, .replacedOriginal) = results.first else { Issue.record("\(results)"); return }
+        #expect(outputs.map(\.lastPathComponent) == ["Puppy-cutout.png"])
+        #expect(trash.items == [source])
+        #expect(try String(contentsOf: existing, encoding: .utf8) == "data of Puppy.png")
+        #expect(try contents(of: dir) == ["Puppy-cutout.png", "Puppy.png"])
+    }
+
+    /// A video's audio is another kind of file: the video stays (P273).
+    @Test func replaceNeverAppliesAcrossKinds() async throws {
         let dir = try makeTempDir(); defer { try? FileManager.default.removeItem(at: dir) }
         let trashFolder = try makeTempDir(); defer { try? FileManager.default.removeItem(at: trashFolder) }
         let trash = TestTrash(folder: trashFolder)

@@ -111,7 +111,7 @@ import Testing
             let preset = try #require(Preset.builtIns.first { $0.id == tool.id })
             #expect(preset.needsInput, "\(tool.id)")
             #expect(preset.name == tool.name, "\(tool.id)")
-            #expect(tool.action == nil && !tool.canReplaceOriginal && tool.settings.isEmpty, "\(tool.id)")
+            #expect(tool.action == nil && tool.canReplaceOriginal == (tool.id != "split-video") && tool.settings.isEmpty, "\(tool.id)")
             #expect(tool.hint?.isEmpty == false, "\(tool.id)")
         }
         for preset in Preset.builtIns where preset.needsInput {
@@ -192,11 +192,15 @@ import Testing
     @Test func replaceableToolsAreTheOnesTheBriefNames() {
         let replaceable = Set(ToolCatalog.all.filter(\.canReplaceOriginal).map(\.id))
         #expect(replaceable == ["compress", "compress-more", "half-size", "remove-audio", "normalize-volume",
+                                "trim", "crop", "compress-to-size", "resize", "rotate", "redact", "organize-pages",
+                                "remove-background", "smart-crop", "straighten",
                                 "speed-up", "slow-down", "mono", "strip-metadata"])
     }
 
-    @Test func editorsNeverReplaceTheOriginal() {
-        #expect(ToolCatalog.all.filter { $0.editor != nil }.allSatisfy { !$0.canReplaceOriginal })
+    /// P273: every editor that makes one file may replace it; Split… makes several.
+    @Test func editorsReplaceTheOriginalButSplit() {
+        let editors = ToolCatalog.all.filter { $0.editor != nil }
+        #expect(editors.filter { !$0.canReplaceOriginal }.map(\.id) == ["split-video"])
     }
 
     // MARK: - Vision tools (P261, P264 to P266)
@@ -205,7 +209,7 @@ import Testing
         let info = try #require(ToolCatalog.info("smart-crop"))
         #expect(info.name == "Smart crop" && info.symbol == "viewfinder" && info.verb == "Cropping")
         #expect(info.isAI && info.kinds == [.image] && info.shownByDefault == [.image])
-        #expect(info.editor == nil && !info.canReplaceOriginal && info.action == nil && info.acceptsSeveralFiles)
+        #expect(info.editor == nil && info.canReplaceOriginal && info.action == nil && info.acceptsSeveralFiles)
         #expect(info.settings == [.cropShape(["", "1:1", "4:5", "4:3", "16:9"])])
         let ids = ToolCatalog.all.map(\.id)
         let background = try #require(ids.firstIndex(of: "remove-background"))
@@ -223,7 +227,7 @@ import Testing
         let info = try #require(ToolCatalog.info("straighten"))
         #expect(info.name == "Straighten document" && info.symbol == "doc.viewfinder" && info.verb == "Straightening")
         #expect(info.isAI && info.kinds == [.image] && info.shownByDefault == [.image] && info.settings.isEmpty)
-        #expect(info.editor == nil && !info.canReplaceOriginal && info.action == nil && info.acceptsSeveralFiles)
+        #expect(info.editor == nil && info.canReplaceOriginal && info.action == nil && info.acceptsSeveralFiles)
         let ids = ToolCatalog.all.map(\.id)
         let smartCrop = try #require(ids.firstIndex(of: "smart-crop"))
         #expect(ids[smartCrop + 1] == "straighten")

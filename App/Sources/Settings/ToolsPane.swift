@@ -13,8 +13,10 @@ struct ToolsPane: View {
     static let wheelFooter = "Choose what each wheel shows in the Wheel pane."
 
     static let originalsFooter = """
-        After a tool that keeps the format (Compress, Remove metadata, \u{2026}), the original goes to the Trash and \
-        the result takes its name.
+        The result takes the original's place and the original goes to the Trash: after a conversion that keeps \
+        the kind of file (HEIC to JPG, MOV to MP4), an editor (Crop, Trim, Resize, \u{2026}) or a tool (Compress, \
+        Remove background, \u{2026}). Never when the kind changes (Extract audio, Transcribe), for a merge, or when \
+        there are several results.
         """
     static let translationNote = """
         Translate writes into languages downloaded on this Mac. Download others in System Settings, General, \

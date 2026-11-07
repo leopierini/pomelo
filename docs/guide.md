@@ -52,7 +52,10 @@ Extract tables (to CSV or Excel) and PDF to Word read documents with Vision. Wit
 Summarize and Extract data use Apple's on-device model. Nothing leaves your Mac.
 
 **Settings › Tools** sets each tool's options: quality, size, speed, the language of a transcription or translation,
-and more. **Replace the original** (off by default) moves an original to the Trash once its result is in place.
+and more. **Replace the original** (off by default) moves an original to the Trash once its result is in place, and
+the result takes its name: after a conversion that keeps the kind of file (HEIC to JPG, MOV to MP4), an editor (Crop,
+Trim, Resize…) or a tool (Compress, Remove background…). It never applies when the kind changes (a video's audio, a
+transcript), to a merge, or when there are several results.
 
 ## Your own wheel
 

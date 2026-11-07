@@ -458,6 +458,9 @@ public struct WheelContentBuilder: Sendable {
         var warning = slice.flags.contains(.layoutRisk) ? Self.layoutWarning : nil
         guard case .convert(let target) = slice.kind else {
             if case .editor(let id) = slice.kind {
+                if replacesOriginals, slice.isEnabled, ToolCatalog.info(id)?.canReplaceOriginal == true {
+                    warning = Self.replaceWarning
+                }
                 return HubPreview(title: slice.title, subtitle: slice.disabledReason ?? ToolCatalog.info(id)?.hint,
                                   warning: warning)
             }
@@ -473,6 +476,12 @@ public struct WheelContentBuilder: Sendable {
         // A customized wheel's own-format slot (P176) converts nothing: "0 files → PNG" would say nothing.
         if converted.isEmpty {
             return HubPreview(title: slice.title, subtitle: slice.disabledReason, warning: warning)
+        }
+        // As the runner decides (P273): a conversion that keeps the kind of file replaces its source.
+        let targetCategory = formats.format(id: target)?.category
+        if replacesOriginals, slice.isEnabled, targetCategory != nil, targetCategory != .other,
+           converted.contains(where: { formats.format(for: $0)?.category == targetCategory }) {
+            warning = Self.replaceWarning
         }
         let ext = formats.format(id: target)?.extensions.first ?? target.rawValue
         let title = converted.count == 1

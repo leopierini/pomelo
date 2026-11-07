@@ -237,20 +237,29 @@ public actor JobRunner {
         case .fromSource: (OutputNamer.stem(of: source), request.nameSuffix)
         case .fromOutput: (OutputNamer.stem(of: current), String?.none)
         }
-        // Only a version of the source published next to it may take its name (§3.4 rule 8). Trashing a symlink
-        // would leave its target in place (P47); a produced name is not a version of the source (P48).
+        // Only a version of the source published next to it may take its place (§3.4 rule 8, P273: the same kind of
+        // file, so HEIC → JPG replaces and a video's audio never does). Trashing a symlink would leave its target in
+        // place (P47); a produced name is not a version of the source (P48).
         let isSymlink = (try? source.resourceValues(forKeys: [.isSymbolicLinkKey]))?.isSymbolicLink == true
+        let outputFormat = formats.format(forExtension: ext)
+        let sourceCategory = formats.format(id: plan.sourceFormat)?.category
         let replaces = request.replaceOriginal && plan.note == nil && isRegularFile && !isSymlink
             && request.outputNaming == .fromSource
-            && formats.format(forExtension: ext)?.id == plan.sourceFormat
+            && outputFormat != nil && sourceCategory != .other && outputFormat?.category == sourceCategory
             && Self.isSameFolder(plan.folder, source.deletingLastPathComponent())
+        // A same-format result takes the source's exact name; another format keeps the source's name with its own
+        // extension (Lake.heic → Lake.jpg).
+        let replacementName = outputFormat?.id == plan.sourceFormat
+            ? source
+            : plan.folder.appending(path: "\(source.deletingPathExtension().lastPathComponent).\(ext)",
+                                    directoryHint: .notDirectory)
 
         // Marked while still in staging, so the output is never visible without its quarantine (P58).
         if let mark = Quarantine.mark(of: source) { Quarantine.apply(mark, to: current) }
         do {
             let published = try await publish(
-                current, to: plan.folder, stem: stem, ext: ext, suffix: suffix, replacing: replaces ? source : nil,
-                job: job
+                current, to: plan.folder, stem: stem, ext: ext, suffix: suffix,
+                replacing: replaces ? (original: source, name: replacementName) : nil, job: job
             )
             return .succeeded(
                 source: source, outputs: [published.output], note: published.replaced ? .replacedOriginal : plan.note
@@ -405,10 +414,11 @@ public actor JobRunner {
 
     /// Serialized on the actor: the cancellation check, the name check, the exclusive rename and the reservation
     /// happen as one unit, so a cancel that lands after the check is too late by definition (the file succeeded).
-    /// With `original`, replace-original follows with no cancellation check, since the file already counts as
-    /// converted.
+    /// With `replacing`, replace-original follows with no cancellation check, since the file already counts as
+    /// converted: the original goes to the Trash and the result moves to `name`.
     private func publish(
-        _ staged: URL, to folder: URL, stem: String, ext: String, suffix: String?, replacing original: URL?, job: UUID
+        _ staged: URL, to folder: URL, stem: String, ext: String, suffix: String?,
+        replacing: (original: URL, name: URL)?, job: UUID
     ) throws -> (output: URL, replaced: Bool) {
         try Task.checkCancellation()
         let published = try OutputPublisher.publish(
@@ -416,12 +426,16 @@ public actor JobRunner {
             avoiding: reservedNames[job] ?? [], namer: OutputNamer()
         )
         reservedNames[job, default: []].insert(published.lastPathComponent.lowercased())
-        guard let original else { return (published, false) }
+        guard let (original, name) = replacing else { return (published, false) }
 
         // The source is trashed only once its replacement is published: if the Trash refuses, both stay.
         do { try trashItem(original) } catch { return (published, false) }
-        // RENAME_EXCL: an item that took the source's name since the trash keeps it; the result keeps its own name.
-        if renamex_np(published.path, original.path, UInt32(RENAME_EXCL)) == 0 { return (original, true) }
+        if published.path == name.path { return (published, true) }
+        // RENAME_EXCL: an item that took the name since the trash keeps it; the result keeps its own name.
+        if renamex_np(published.path, name.path, UInt32(RENAME_EXCL)) == 0 {
+            reservedNames[job, default: []].insert(name.lastPathComponent.lowercased())
+            return (name, true)
+        }
         return (published, true)
     }
 

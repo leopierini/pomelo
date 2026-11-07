@@ -1159,14 +1159,53 @@ private func toolSlice(_ id: String) -> WheelSlice {
         let source = try png("a.png", in: dir)
         let trash = try FakeTrash(folder: dir.appending(path: "trash"))
         let coordinator = await makeToolCoordinator(
+            operations: ["snapshot"], calls: ToolCalls(), settings: { $0.replaceOriginal = true }, trash: trash
+        )
+
+        let outcome = await coordinator.perform(toolSlice("snapshot"), on: [source]).value
+
+        #expect(outcome == .succeeded)
+        #expect(trash.items.isEmpty)
+        #expect(try contents(of: dir) == ["a-snapshot.png", "a.png", "trash"])
+    }
+
+    /// P273: an AI edit that makes one image replaces it too.
+    @Test func removeBackgroundReplacesTheOriginal() async throws {
+        let dir = try makeTempDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let source = try png("a.png", in: dir)
+        let trash = try FakeTrash(folder: dir.appending(path: "trash"))
+        let coordinator = await makeToolCoordinator(
             operations: ["remove-background"], calls: ToolCalls(), settings: { $0.replaceOriginal = true }, trash: trash
         )
 
         let outcome = await coordinator.perform(toolSlice("remove-background"), on: [source]).value
 
         #expect(outcome == .succeeded)
-        #expect(trash.items.isEmpty)
-        #expect(try contents(of: dir) == ["a-cutout.png", "a.png", "trash"])
+        #expect(trash.items == [source])
+        #expect(try contents(of: dir) == ["a.png", "trash"])
+    }
+
+    /// P273: a conversion that keeps the kind of file replaces its source, under the source's name with the new
+    /// extension.
+    @Test func aConversionOfTheSameKindReplacesTheOriginal() async throws {
+        for replaces in [true, false] {
+            let dir = try makeTempDir()
+            defer { try? FileManager.default.removeItem(at: dir) }
+            let source = try png("a.png", in: dir)
+            let trash = try FakeTrash(folder: dir.appending(path: "trash"))
+            let coordinator = await makeToolCoordinator(
+                operations: [], calls: ToolCalls(), settings: { $0.replaceOriginal = replaces }, trash: trash,
+                engine: CopyEngine()
+            )
+            let tiff = WheelSlice(id: "convert.tiff", title: "TIFF", symbol: "photo", kind: .convert("tiff"))
+
+            let outcome = await coordinator.perform(tiff, on: [source]).value
+
+            #expect(outcome == .succeeded)
+            #expect(trash.items == (replaces ? [source] : []))
+            #expect(try contents(of: dir) == (replaces ? ["a.tiff", "trash"] : ["a.png", "a.tiff", "trash"]))
+        }
     }
 
     // A replace publishes the source's own URL as the output: nothing may treat that as a failure, and the
@@ -1264,7 +1303,8 @@ private func toolSlice(_ id: String) -> WheelSlice {
         #expect(coordinator.jobs.isEmpty)
     }
 
-    @Test func editorJobsNeverReplaceTheOriginal() async throws {
+    /// P273 reverses Phase 4's rule: an editor that makes one file replaces the original when asked.
+    @Test func editorJobsReplaceTheOriginal() async throws {
         let dir = try makeTempDir()
         defer { try? FileManager.default.removeItem(at: dir) }
         let source = try png("a.png", in: dir)
@@ -1278,8 +1318,8 @@ private func toolSlice(_ id: String) -> WheelSlice {
                                                 anchor: .zero, isHeld: false).outcome.value
 
         #expect(outcome == .succeeded)
-        #expect(trash.items.isEmpty)
-        #expect(try contents(of: dir) == ["a-cropped.png", "a.png", "trash"])
+        #expect(trash.items == [source])
+        #expect(try contents(of: dir) == ["a.png", "trash"])
     }
 
     /// A tool doesn't convert: its failure names the tool (an editor's without its "…").

@@ -115,20 +115,22 @@ public enum ToolCatalog {
     @inline(never)
     private static func aiTool(
         _ id: String, _ name: String, _ symbol: String, _ verb: String, kinds: Set<FormatCategory>,
-        settings: [ToolSetting] = []
+        settings: [ToolSetting] = [], replaces: Bool = false
     ) -> ToolInfo {
         ToolInfo(id: id, name: name, symbol: symbol, verb: verb, kinds: kinds, shownByDefault: kinds,
-                 settings: settings, isAI: true)
+                 settings: settings, canReplaceOriginal: replaces, isAI: true)
     }
 
-    /// Editors never replace the original, whatever the setting (Phase 4 safety rule).
+    /// An editor that makes one file of the same kind replaces the original when the setting is on (P273 reverses
+    /// Phase 4's rule); Split… makes several and never does.
     @inline(never)
     private static func editorTool(
         _ id: String, _ name: String, _ symbol: String, _ verb: String, _ editor: EditorKind, _ hint: String,
-        kinds: Set<FormatCategory>, shownFor: Set<FormatCategory>, severalFiles: Bool = false
+        kinds: Set<FormatCategory>, shownFor: Set<FormatCategory>, severalFiles: Bool = false,
+        replaces: Bool = true
     ) -> ToolInfo {
         ToolInfo(id: id, name: name, symbol: symbol, verb: verb, kinds: kinds, shownByDefault: shownFor,
-                 editor: editor, hint: hint, acceptsSeveralFiles: severalFiles)
+                 canReplaceOriginal: replaces, editor: editor, hint: hint, acceptsSeveralFiles: severalFiles)
     }
 
     /// Every tool, in wheel order (clockwise from 12 o'clock). Each editor sits next to its instant relatives.
@@ -136,7 +138,7 @@ public enum ToolCatalog {
         editorTool("trim", "Trim\u{2026}", "timeline.selection", "Trimming", .trim, "Choose the part to keep",
                    kinds: [.video, .audio], shownFor: [.video, .audio]),
         editorTool("split-video", "Split\u{2026}", "scissors", "Splitting", .split, "Choose where to cut",
-                   kinds: [.video], shownFor: []),
+                   kinds: [.video], shownFor: [], replaces: false),
         editorTool("crop", "Crop\u{2026}", "crop", "Cropping", .crop, "Choose the area to keep",
                    kinds: [.image, .video], shownFor: [.image, .video]),
         ToolInfo(
@@ -161,10 +163,11 @@ public enum ToolCatalog {
             kinds: [.image], shownByDefault: [], canReplaceOriginal: true
         ),
         aiTool("remove-background", "Remove background", "person.and.background.dotted", "Removing background",
-               kinds: [.image]),
+               kinds: [.image], replaces: true),
         aiTool("smart-crop", "Smart crop", "viewfinder", "Cropping", kinds: [.image],
-               settings: [.cropShape(["", "1:1", "4:5", "4:3", "16:9"])]),
-        aiTool("straighten", "Straighten document", "doc.viewfinder", "Straightening", kinds: [.image]),
+               settings: [.cropShape(["", "1:1", "4:5", "4:3", "16:9"])], replaces: true),
+        aiTool("straighten", "Straighten document", "doc.viewfinder", "Straightening", kinds: [.image],
+               replaces: true),
         editorTool("redact", "Redact\u{2026}", "eye.slash", "Redacting", .redact, "Choose what to hide",
                    kinds: [.image], shownFor: [.image]),
         ToolInfo(

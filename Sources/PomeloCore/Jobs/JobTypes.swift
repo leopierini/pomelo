@@ -15,7 +15,8 @@ public struct ConversionRequest: Sendable {
     /// A result that is not smaller than its source fails with "Already compressed" (folders are exempt).
     public var onlyIfSmaller = false
     public var outputNaming: OutputNaming = .fromSource
-    /// Opt-in: a same-format result next to its source takes the source's name, the source going to the Trash.
+    /// Opt-in: a result of the same kind next to its source takes the source's place (its name, with the result's
+    /// extension), the source going to the Trash (P273).
     public var replaceOriginal = false
     /// All inputs become one output (a merge) through one `CombiningEngine`; it never replaces a source and is
     /// never refused for its size.
