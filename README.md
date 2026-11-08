@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/media/demo.gif" alt="A HEIC photo dragged in Finder: a tap of ⇧ opens Pomelo's wheel at the cursor, the photo is dropped on JPEG, and Lake.jpg takes its place" width="640">
+  <img src="docs/media/demo.gif" alt="Pomelo's demo, about 50 seconds: a HEIC photo dragged in Finder, a tap of ⇧ opens the wheel at the cursor and the photo becomes Lake.jpg; a photo of a puppy is cropped square, then its background is removed; a video is trimmed in the Trim editor, then compressed to under 10 MB with a progress pill" width="800">
 </p>
 
 The new file appears next to the original, which stays as it is. If you turn on **Replace the original** in Settings ›
