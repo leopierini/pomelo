@@ -53,7 +53,7 @@ Some tools open a small editor right where you dropped: Trim, Split, Crop, Resiz
 to size (pick a size, Pomelo finds the quality), and Redact, which finds faces, email addresses and text for you.
 
 <p align="center">
-  <img src="docs/media/clip-editor.gif" alt="A video dropped on Compress to size: the editor at the drop point is set to under 10 MB, Save Smaller Copy runs with a progress pill, and the smaller video takes the original's place" width="560">
+  <img src="docs/media/clip-editor.gif" alt="A video dropped on Compress to size: the editor at the drop point tries 20 and 50 MB, then is set to under 10 MB, Save Smaller Copy runs with a progress pill, and the smaller video takes the original's place" width="560">
 </p>
 
 ### On-device AI
@@ -72,7 +72,7 @@ In **Settings › Wheel**, choose what the wheel shows for each kind of file, or
 pages you name. You edit the wheel itself: drag pieces onto it, between its pages, or off it.
 
 <p align="center">
-  <img src="docs/media/clip-wheel.gif" alt="Settings, Wheel: HEIC gets its own wheel with Customize for HEIC, a slice is dragged off the wheel and Compress and Compress to size are dragged on" width="640">
+  <img src="docs/media/clip-wheel.gif" alt="Settings, Wheel: HEIC gets its own wheel with Customize for HEIC, slices are dragged off the wheel and Compress, Compress to size and PDF are dragged on" width="640">
 </p>
 
 ### The Shelf
