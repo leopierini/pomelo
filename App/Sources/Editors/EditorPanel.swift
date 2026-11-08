@@ -29,6 +29,17 @@ final class EditorPanel: NSPanel {
         // Only the header moves the panel (`EditorDragArea`): a drag on a control or a crop handle must not.
         isMovableByWindowBackground = false
         embed(host)
+        roundCorners()
+    }
+
+    /// While the panel is key, the window server draws a borderless window's shadow rim along the window's rectangle,
+    /// a square outline around the rounded card (seen on macOS 27.2): the content view's layer is rounded like the card.
+    private func roundCorners() {
+        guard let view = contentView else { return }
+        view.wantsLayer = true
+        view.layer?.cornerRadius = EditorLayout.cornerRadius
+        view.layer?.cornerCurve = .continuous
+        view.layer?.masksToBounds = true
     }
 
     override var canBecomeKey: Bool { true }

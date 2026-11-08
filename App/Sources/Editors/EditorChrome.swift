@@ -91,7 +91,7 @@ private struct EditorCard: View {
         }
         .padding(14)
         .frame(width: EditorLayout.width(for: state.kind), alignment: .leading)
-        .wheelBackground(in: RoundedRectangle(cornerRadius: 16))
+        .wheelBackground(in: RoundedRectangle(cornerRadius: EditorLayout.cornerRadius, style: .continuous))
         .accessibilityElement(children: .contain)
         .accessibilityLabel("\(state.title) editor")
         // Under Reduce Motion only the opacity changes (global constraints, Look).

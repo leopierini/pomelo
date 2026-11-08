@@ -156,6 +156,11 @@ private let trimFailure = ResultSummary(title: "Couldn't trim clip.mov", detail:
         #expect(!panel.hidesOnDeactivate)
         #expect(panel.collectionBehavior.contains(.fullScreenAuxiliary))
         #expect(panel.hasShadow)
+        // A key borderless panel's shadow rim follows the window's shape: rounded like the card, never a square.
+        let layer = try #require(panel.contentView?.layer)
+        #expect(layer.cornerRadius == EditorLayout.cornerRadius)
+        #expect(layer.cornerCurve == .continuous)
+        #expect(layer.masksToBounds)
         #expect(!panel.isMovableByWindowBackground)
         // Off-screen it is never made key, and nothing activated the app.
         #expect(!panel.isKeyWindow)

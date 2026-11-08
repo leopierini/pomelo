@@ -20,6 +20,8 @@ public enum EditorLayout {
     public static let maxHeight: CGFloat = 560
     /// Between the panel and the edges of the visible frame.
     public static let margin: CGFloat = 8
+    /// The card's corners, and the panel's: the window's own corners must match the card's (see `EditorPanel`).
+    public static let cornerRadius: CGFloat = 16
 
     public static func width(for kind: EditorKind) -> CGFloat {
         switch kind {
