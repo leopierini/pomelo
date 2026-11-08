@@ -32,8 +32,9 @@ final class EditorPanel: NSPanel {
         roundCorners()
     }
 
-    /// While the panel is key, the window server draws a borderless window's shadow rim along the window's rectangle,
-    /// a square outline around the rounded card (seen on macOS 27.2): the content view's layer is rounded like the card.
+    /// While the panel is key, the window server draws its shadow rim around the whole content, which reached the
+    /// window's square corners: an outline around the rounded card (macOS 27.2). The content view's layer is rounded
+    /// like the card.
     private func roundCorners() {
         guard let view = contentView else { return }
         view.wantsLayer = true
