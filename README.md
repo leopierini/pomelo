@@ -19,14 +19,12 @@
 </p>
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/media/wheel-dark.png">
-    <img src="docs/media/wheel-light.png" alt="Pomelo's wheel over a dragged PNG photo, with JPEG highlighted and the centre estimating About 1.7 MB, 86% smaller; other slices offer AVIF, HEIC, WebP, ICO, GIF, PDF and Plain Text" width="360">
-  </picture>
+  <img src="docs/media/demo.gif" alt="A HEIC photo dragged in Finder: a tap of ⇧ opens Pomelo's wheel at the cursor, the photo is dropped on JPEG, and Lake.jpg takes its place" width="640">
 </p>
 
-The new file appears next to the original, which is never touched. Everything runs on your Mac: no account, no
-uploads, no telemetry, and no special permissions for the gesture.
+The new file appears next to the original, which is never touched, or takes its place if you turn on **Replace the
+original** (the original goes to the Trash). Everything runs on your Mac: no account, no uploads, no telemetry, and no
+special permissions for the gesture.
 
 **[Download the latest release](https://github.com/leopierini/pomelo/releases/latest)** · [Install](#install) ·
 [User guide](docs/guide.md)
@@ -46,10 +44,7 @@ Tap ⇧ again and the wheel flips to **Tools**: Compress, Resize, Rotate, Remove
 PDF, Merge and Split PDFs, Extract audio, Normalize volume, Make Zip, and more.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/media/feature-tools-dark.png">
-    <img src="docs/media/feature-tools-light.png" alt="The wheel's Tools page for a photo: Crop, Compress, Compress to size, Resize, Rotate, Redact and the Shelf" width="360">
-  </picture>
+  <img src="docs/media/clip-tools.gif" alt="A photo dragged onto the wheel: ⇧ flips to the Tools page, the photo is dropped on Crop, a square is chosen in the Crop editor and the cropped photo takes the original's place" width="560">
 </p>
 
 ### Editors at the drop point
@@ -58,10 +53,7 @@ Some tools open a small editor right where you dropped: Trim, Split, Crop, Resiz
 to size (pick a size, Pomelo finds the quality), and Redact, which finds faces, email addresses and text for you.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/media/feature-editor-dark.png">
-    <img src="docs/media/feature-editor-light.png" alt="The Redact editor at the drop point, with the face in a photo found and covered by a black box" width="560">
-  </picture>
+  <img src="docs/media/clip-editor.gif" alt="A video dropped on Compress to size: the editor at the drop point is set to under 10 MB, Save Smaller Copy runs with a progress pill, and the smaller video takes the original's place" width="560">
 </p>
 
 ### On-device AI
@@ -71,10 +63,7 @@ document and Find duplicates; on macOS 26 also Transcribe, Make subtitles, Trans
 tables and PDF to Word, and, with Apple Intelligence, Summarize and Extract data.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/media/feature-ai-dark.png">
-    <img src="docs/media/feature-ai-light.png" alt="The wheel's AI page for a photo: Remove background, Smart crop, Straighten document, Scan to Markdown, Extract tables and Extract data" width="360">
-  </picture>
+  <img src="docs/media/clip-ai.gif" alt="A photo of a puppy dragged onto the wheel's AI page and dropped on Remove background: the cut-out PNG takes the photo's place" width="560">
 </p>
 
 ### Make the wheel yours
@@ -83,10 +72,7 @@ In **Settings › Wheel**, choose what the wheel shows for each kind of file, or
 pages you name. You edit the wheel itself: drag pieces onto it, between its pages, or off it.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/media/feature-wheel-dark.png">
-    <img src="docs/media/feature-wheel-light.png" alt="Settings, Wheel: the list of kinds of file, the image wheel being edited, and the pieces that can be added to it" width="640">
-  </picture>
+  <img src="docs/media/clip-wheel.gif" alt="Settings, Wheel: HEIC gets its own wheel with Customize for HEIC, a slice is dragged off the wheel and Compress and Compress to size are dragged on" width="640">
 </p>
 
 ### The Shelf
