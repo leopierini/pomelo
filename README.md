@@ -22,8 +22,9 @@
   <img src="docs/media/demo.gif" alt="A HEIC photo dragged in Finder: a tap of ⇧ opens Pomelo's wheel at the cursor, the photo is dropped on JPEG, and Lake.jpg takes its place" width="640">
 </p>
 
-The new file appears next to the original, which is never touched, or takes its place if you turn on **Replace the
-original** (the original goes to the Trash). Everything runs on your Mac: no account, no uploads, no telemetry, and no
+The new file appears next to the original, which stays as it is. If you turn on **Replace the original** in Settings ›
+Tools, as in the clips here, most jobs put the result in the original's place instead and move the original to the
+Trash ([details](docs/guide.md)). Everything runs on your Mac: no account, no uploads, no telemetry, and no
 special permissions for the gesture.
 
 **[Download the latest release](https://github.com/leopierini/pomelo/releases/latest)** · [Install](#install) ·
@@ -72,7 +73,7 @@ In **Settings › Wheel**, choose what the wheel shows for each kind of file, or
 pages you name. You edit the wheel itself: drag pieces onto it, between its pages, or off it.
 
 <p align="center">
-  <img src="docs/media/clip-wheel.gif" alt="Settings, Wheel: HEIC gets its own wheel with Customize for HEIC, slices are dragged off the wheel and Compress, Compress to size and PDF are dragged on" width="640">
+  <img src="docs/media/clip-wheel.gif" alt="Settings, Wheel: HEIC gets its own wheel with Customize for HEIC, JPEG, HEIC and Plain Text are dragged off the wheel, and TGA, Compress and Compress to size are dragged on" width="640">
 </p>
 
 ### The Shelf
